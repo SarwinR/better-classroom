@@ -52,17 +52,18 @@ contentWindow = document.getElementsByClassName(contentWindowClassName)[0];
 navigationBar = document.getElementsByClassName(navigationBarClassName)[0];
 
 // create an observer instance
-var observer = new MutationObserver(function (mutations) {
-	observer.disconnect();
+var fileListObserver = new MutationObserver(function (mutations) {
+	fileListObserver.disconnect();
 	allClasses = document.getElementsByClassName(classClassName);
 	renderFolders();
+	setupFolderIcon();
 });
 
 // configuration of the observer:
 var config = { attributes: true, childList: true, characterData: true };
 
 // pass in the target node, as well as the observer options
-observer.observe(folderList, config);
+fileListObserver.observe(folderList, config);
 
 fetch(chrome.runtime.getURL("html/dropdown_list.html"))
 	.then((response) => response.text())
@@ -73,6 +74,7 @@ fetch(chrome.runtime.getURL("html/dropdown_list.html"))
 		navigationBar.innerHTML = dropdown.innerHTML + navigationBar.innerHTML;
 
 		folderDropdown = document.getElementById("folder-dropdown");
+
 		folderDropdown.addEventListener("click", () => {
 			if (folderDropdown.value != selectedFolder) {
 				selectedFolder = folderDropdown.value;
@@ -80,6 +82,27 @@ fetch(chrome.runtime.getURL("html/dropdown_list.html"))
 			}
 		});
 	});
+
+function setupFolderIcon() {
+	if (allClasses == null) return;
+
+	fetch(chrome.runtime.getURL("html/folder_setting_button.html"))
+		.then((response) => response.text())
+		.then((data) => {
+			for (let i = 0; i < allClasses.length; i++) {
+				folderSettingButton = document.createElement("div");
+				folderSettingButton.innerHTML = data;
+				folderSettingButton.setAttribute("id", "folder-setting-button");
+
+				folderSettingButton.dataset["courseId"] =
+					allClasses[i].dataset["courseId"];
+
+				allClasses[i]
+					.querySelector(".SZ0kZe")
+					.appendChild(folderSettingButton);
+			}
+		});
+}
 
 function renderFolders() {
 	if (allClasses == null) return;

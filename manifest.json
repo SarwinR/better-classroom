@@ -4,15 +4,15 @@
 	"description": "TO ADD DESCRIPTION",
 	"version": "0.0.1",
 	"icons": {
-		"16": "images/16.png",
-		"48": "images/48.png",
-		"128": "images/128.png"
+		"16": "assets/icons/extension_icons/16.png",
+		"48": "assets/icons/extension_icons/48.png",
+		"128": "assets/icons/extension_icons/128.png"
 	},
 	"action": {
 		"default_icon": {
-			"16": "images/16.png",
-			"48": "images/48.png",
-			"128": "images/128.png"
+			"16": "assets/icons/extension_icons/16.png",
+			"48": "assets/icons/extension_icons/48.png",
+			"128": "assets/icons/extension_icons/128.png"
 		},
 		"default_popup": "popup.html"
 	},
@@ -20,7 +20,8 @@
 		{
 			"resources": [
 				"/html/folder_creation_modal.html",
-				"/html/dropdown_list.html"
+				"/html/dropdown_list.html",
+				"/html/folder_setting_button.html"
 			],
 			"matches": ["<all_urls>"]
 		}
