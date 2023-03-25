@@ -1,12 +1,19 @@
 folderCreationModal = null;
 
-selectedFolder = null;
+selectedFolder = "__All Classes__";
 classListClassName = "JwPp0e";
 
 allClasses = null;
 
+topStaticFolders = { "__All Classes__": "All Classes" };
+bottomStaticFolders = {
+	__Separator__: "──────────",
+	"__Add Folder__": "Add Folder",
+};
+folders = { Archive: "Archive" };
+
 activeClasses = {
-	archive: ["552499388433", "176917870822", "176066555629"],
+	Archive: ["552499388433", "176917870822", "176066555629"],
 };
 
 // append folder creation modal to body
@@ -73,15 +80,49 @@ fetch(chrome.runtime.getURL("html/dropdown_list.html"))
 
 		navigationBar.innerHTML = dropdown.innerHTML + navigationBar.innerHTML;
 
+		renderFolderDropdown();
+
 		folderDropdown = document.getElementById("folder-dropdown");
 
 		folderDropdown.addEventListener("click", () => {
+			if (folderDropdown.value == "__Add Folder__") {
+				folderDropdown.value = selectedFolder || "__All Classes__";
+				toggleFolderCreationModal(true);
+				return;
+			}
+
+			if (folderDropdown.value == "__Separator__") {
+				return;
+			}
+
 			if (folderDropdown.value != selectedFolder) {
 				selectedFolder = folderDropdown.value;
 				renderFolders();
 			}
 		});
 	});
+
+function renderFolderDropdown() {
+	dropdown = document.getElementById("folder-dropdown");
+	dropdown.innerHTML = "";
+
+	Object.keys(topStaticFolders).forEach((k) => {
+		dropdown.innerHTML += `<option value="${k}">${topStaticFolders[k]}</option>`;
+	});
+
+	Object.keys(folders).forEach((k) => {
+		dropdown.innerHTML += `<option value="${k}">${folders[k]}</option>`;
+	});
+
+	Object.keys(bottomStaticFolders).forEach((k) => {
+		if (k == "__Separator__")
+			dropdown.innerHTML += `<option value="${k}" disabled>${bottomStaticFolders[k]}</option>`;
+		else
+			dropdown.innerHTML += `<option value="${k}">${bottomStaticFolders[k]}</option>`;
+	});
+
+	dropdown.value = selectedFolder;
+}
 
 function setupFolderIcon() {
 	if (allClasses == null) return;
@@ -94,8 +135,7 @@ function setupFolderIcon() {
 				folderSettingButton.innerHTML = data;
 				folderSettingButton.setAttribute("id", "folder-setting-button");
 
-				folderSettingButton.dataset["courseId"] =
-					allClasses[i].dataset["courseId"];
+				folderSettingButton.addEventListener("click", () => {});
 
 				allClasses[i]
 					.querySelector(".SZ0kZe")
@@ -115,7 +155,7 @@ function renderFolders() {
 		if (
 			_activeClasses.includes(allClasses[i].dataset["courseId"]) ||
 			selectedFolder == null ||
-			selectedFolder == "all"
+			selectedFolder == "__All Classes__"
 		) {
 			allClasses[i].style.display = "flex";
 		} else {
@@ -132,7 +172,7 @@ function submitFolderCreationForm() {
 		"folder-creation-modal-folder-description"
 	).value;
 
-	createFolder(folderName, folderDescription);
+	createFolder(folderName);
 	toggleFolderCreationModal(false);
 	resetFolderCreationForm();
 }
@@ -152,17 +192,7 @@ function resetFolderCreationForm() {
 		"";
 }
 
-function createFolder(name, description) {
-	fetch(chrome.runtime.getURL("html/folder_list_item.html"))
-		.then((response) => response.text())
-		.then((data) => {
-			newFolder = document.createElement("div");
-			newFolder.innerHTML = data;
-
-			newFolder.querySelector("#folder_name").innerHTML = name;
-
-			document
-				.getElementsByClassName(folderListClassName)[0]
-				.appendChild(newFolder);
-		});
+function createFolder(name) {
+	folders[name] = name;
+	renderFolderDropdown();
 }

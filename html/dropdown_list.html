@@ -10,6 +10,7 @@
 		color: #202124;
 		padding: 10px 24px;
 		border-radius: 8px;
+		text-align: center;
 		border: none;
 		box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 		background-color: #f1f3f4;
@@ -17,23 +18,13 @@
 		-webkit-appearance: none;
 		-moz-appearance: none;
 		cursor: pointer;
-	}
 
-	/* styling the dropdown arrow */
-	select::-ms-expand {
-		display: none;
-	}
+		/* center the displayed selected option */
+		text-align-last: center;
+		/* hide the default arrow */
 
-	select::after {
-		content: "\f107";
-		font-family: "Font Awesome 5 Free";
-		font-size: 14px;
-		font-weight: 900;
-		color: #5f6368;
-		padding: 0 8px;
-		display: inline-block;
-		vertical-align: middle;
-		margin-left: -24px;
+		background-repeat: no-repeat;
+		background-position: right 8px center;
 	}
 
 	/* styling the options */
@@ -41,8 +32,8 @@
 		font-size: 14px;
 		font-weight: 500;
 		color: #202124;
-		padding: 10px;
 		background-color: #fff;
+		text-align: left;
 	}
 
 	/* styling the hover state */
@@ -59,8 +50,5 @@
 </style>
 
 <div id="folder-dropdown-div">
-	<select id="folder-dropdown" name="folders">
-		<option value="all" selected>All Classes</option>
-		<option value="archive">Archive</option>
-	</select>
+	<select id="folder-dropdown" name="folders"></select>
 </div>

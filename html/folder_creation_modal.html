@@ -14,54 +14,92 @@
 		left: 50%;
 		transform: translate(-50%, -50%);
 		z-index: 9999;
-		background-color: #fff;
+		background-color: #ffffff;
 		padding: 20px;
-		border-radius: 5px;
+		border-radius: 4px;
+		box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.16),
+			0px 0px 3px rgba(0, 0, 0, 0.08);
+		width: 400px;
 	}
 
 	/* Style the dimmed background */
 	#modal-overlay {
-		display: flex;
+		display: none;
 		position: fixed;
 		top: 0;
 		left: 0;
 		width: 100%;
 		height: 100%;
-		background-color: rgba(0, 0, 0, 0.5);
+		background-color: rgba(0, 0, 0, 0.7);
 		z-index: 9998;
 	}
 
-	/* Show the modal form and dimmed background when the button is clicked */
-	#open-modal:focus + #modal-overlay,
-	#modal-overlay:focus,
-	#modal-form:focus {
-		display: block;
+	/* Button styles */
+	#folder-creation-modal-modal-close {
+		margin-top: 10px;
+		padding: 10px 10px;
+		border: none;
+		border-radius: 4px;
+		color: #ffffff;
+		background-color: #1a73e8;
+		cursor: pointer;
+		position: absolute;
+		top: 0px;
+		right: 10px;
 	}
-	#open-modal:focus + #modal-overlay #modal-form {
-		display: block;
+
+	#folder-creation-modal-modal-submit {
+		margin-top: 10px;
+		padding: 10px 20px;
+		border: none;
+		border-radius: 4px;
+		color: #ffffff;
+		background-color: #1a73e8;
+		cursor: pointer;
+		position: absolute;
+		bottom: 10px;
+		left: 10px;
+	}
+
+	#folder-creation-modal-modal-close:hover,
+	#folder-creation-modal-modal-submit:hover {
+		background-color: #0d47a1;
+	}
+
+	/* Form styles */
+	form {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	label {
+		margin-bottom: 5px;
+		font-weight: 500;
+		color: #202124;
+	}
+
+	input[type="text"] {
+		margin-bottom: 15px;
+		font-size: 14px;
+		padding: 10px 12px;
+		border: 1px solid #dadce0;
+		border-radius: 4px;
+		width: 100%;
+		box-sizing: border-box;
 	}
 </style>
 
 <div id="folder-creation-modal">
-	<!-- The modal form -->
 	<div id="modal-form">
-		<button id="folder-creation-modal-modal-close">Close</button>
+		<h2>Create New Folder</h2>
+		<button id="folder-creation-modal-modal-close"></button>
 		<form>
-			<h2>Modal Form</h2>
-			<label for="folder-creation-modal-folder-name">Folder Name:</label>
+			<label for="folder-creation-modal-folder-name">Folder Name</label>
 			<input
 				type="text"
 				id="folder-creation-modal-folder-name"
 				name="folder-name"
-			/>
-
-			<label for="folder-creation-modal-folder-description"
-				>Folder Description:</label
-			>
-			<input
-				type="text"
-				id="folder-creation-modal-folder-description"
-				name="folder-description"
 			/>
 		</form>
 		<button id="folder-creation-modal-modal-submit">Create Folder</button>
