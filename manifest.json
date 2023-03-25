@@ -16,10 +16,27 @@
 		},
 		"default_popup": "popup.html"
 	},
-
+	"web_accessible_resources": [
+		{
+			"resources": [
+				"/html/folder_creation_modal.html",
+				"/html/dropdown_list.html"
+			],
+			"matches": ["<all_urls>"]
+		}
+	],
 	"background": {
 		"service_worker": "main.js"
 	},
-
-	"permissions": ["tabs", "activeTab", "contextMenus"]
+	"permissions": ["tabs", "activeTab", "scripting", "nativeMessaging"],
+	"content_scripts": [
+		{
+			"matches": [
+				"https://classroom.google.com/u/*/",
+				"https://classroom.google.com/u/*/h"
+			],
+			"js": ["content.js"],
+			"run_at": "document_end"
+		}
+	]
 }

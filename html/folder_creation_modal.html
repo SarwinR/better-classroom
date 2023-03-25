@@ -1,0 +1,72 @@
+<style>
+	#folder-creation-modal {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+
+	/* Style the modal form */
+	#modal-form {
+		display: block;
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		z-index: 9999;
+		background-color: #fff;
+		padding: 20px;
+		border-radius: 5px;
+	}
+
+	/* Style the dimmed background */
+	#modal-overlay {
+		display: flex;
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(0, 0, 0, 0.5);
+		z-index: 9998;
+	}
+
+	/* Show the modal form and dimmed background when the button is clicked */
+	#open-modal:focus + #modal-overlay,
+	#modal-overlay:focus,
+	#modal-form:focus {
+		display: block;
+	}
+	#open-modal:focus + #modal-overlay #modal-form {
+		display: block;
+	}
+</style>
+
+<div id="folder-creation-modal">
+	<!-- The modal form -->
+	<div id="modal-form">
+		<button id="folder-creation-modal-modal-close">Close</button>
+		<form>
+			<h2>Modal Form</h2>
+			<label for="folder-creation-modal-folder-name">Folder Name:</label>
+			<input
+				type="text"
+				id="folder-creation-modal-folder-name"
+				name="folder-name"
+			/>
+
+			<label for="folder-creation-modal-folder-description"
+				>Folder Description:</label
+			>
+			<input
+				type="text"
+				id="folder-creation-modal-folder-description"
+				name="folder-description"
+			/>
+		</form>
+		<button id="folder-creation-modal-modal-submit">Create Folder</button>
+	</div>
+
+	<!-- The dimmed background -->
+	<div id="modal-overlay"></div>
+</div>

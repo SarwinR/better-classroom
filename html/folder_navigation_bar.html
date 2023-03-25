@@ -1,0 +1,47 @@
+<style>
+	.horizontal-list-container {
+		overflow-x: auto;
+		width: 100%;
+	}
+
+	.horizontal-list {
+		display: flex;
+		flex-direction: row;
+		list-style: none;
+		padding: 0;
+		margin: 0;
+
+		align-items: center;
+	}
+
+	.horizontal-list li {
+		margin-right: 10px;
+		margin-left: 10px;
+	}
+
+	.vertical-bar {
+		border-left: 1px solid #ccc;
+		height: 50px;
+	}
+
+	#active-folder-name {
+		margin: 0;
+		padding-top: 0px;
+	}
+</style>
+
+<div class="horizontal-list-container">
+	<ul class="horizontal-list">
+		<li><button>All Classes</button></li>
+		<li><div class="vertical-bar"></div></li>
+
+		<li><button>Folder 1</button></li>
+		<li><button>Folder 2</button></li>
+		<li><button>Folder 3</button></li>
+		<li><button>Folder 4</button></li>
+		<li><div class="vertical-bar"></div></li>
+		<li><button>+ Folder</button></li>
+	</ul>
+</div>
+
+<h3 id="active-folder-name">Active Folder</h3>
