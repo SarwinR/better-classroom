@@ -3,26 +3,11 @@ folderCreationModal = null;
 selectedFolder = null;
 classListClassName = "JwPp0e";
 
-// chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-// 	var activeTab = tabs[0];
-// 	if (activeTab.status === "complete") {
-// 		// The active tab has fully loaded
-// 		console.log("Active tab has fully loaded");
-// 	}
-// });
+allClasses = null;
 
-//check if tab has loaded
-// chrome.activeTab.onUpdated.addListener(function (tabId, changeInfo, tab) {
-// 	if (changeInfo.status == "complete") {
-// 		classList = document.getElementsByClassName(classListClassName)[0];
-// 	}
-// });
-
-// chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-// 	if (changeInfo.status == "complete") {
-// 		classList = document.getElementsByClassName(classListClassName)[0];
-// 	}
-// });
+activeClasses = {
+	archive: ["552499388433", "176917870822", "176066555629"],
+};
 
 // append folder creation modal to body
 fetch(chrome.runtime.getURL("html/folder_creation_modal.html"))
@@ -60,14 +45,17 @@ folderListClassName = "JwPp0e";
 contentWindowClassName = "kFwPee";
 inContentWindowNavigationBarClassName = "xgkURe mhCMAe";
 
+classClassName = "gHz6xd Aopndd rZXyy";
+
 folderList = document.getElementsByClassName(folderListClassName)[0];
 contentWindow = document.getElementsByClassName(contentWindowClassName)[0];
 navigationBar = document.getElementsByClassName(navigationBarClassName)[0];
 
 // create an observer instance
 var observer = new MutationObserver(function (mutations) {
-	console.log("Loaded");
 	observer.disconnect();
+	allClasses = document.getElementsByClassName(classClassName);
+	renderFolders();
 });
 
 // configuration of the observer:
@@ -88,17 +76,30 @@ fetch(chrome.runtime.getURL("html/dropdown_list.html"))
 		folderDropdown.addEventListener("click", () => {
 			if (folderDropdown.value != selectedFolder) {
 				selectedFolder = folderDropdown.value;
-				console.log(folderDropdown.value);
+				renderFolders();
 			}
 		});
 	});
 
-// addFolderButton = document.getElementById("add-folder");
-// addFolderButton.addEventListener("click", () => {
-// 	toggleFolderCreationModal(true);
-// });
+function renderFolders() {
+	if (allClasses == null) return;
 
-function addAddtoFolderButton() {}
+	for (let i = 0; i < allClasses.length; i++) {
+		console.log(allClasses[i].dataset["courseId"]);
+
+		_activeClasses = activeClasses[selectedFolder] || [];
+
+		if (
+			_activeClasses.includes(allClasses[i].dataset["courseId"]) ||
+			selectedFolder == null ||
+			selectedFolder == "all"
+		) {
+			allClasses[i].style.display = "flex";
+		} else {
+			allClasses[i].style.display = "none";
+		}
+	}
+}
 
 function submitFolderCreationForm() {
 	folderName = document.getElementById(
