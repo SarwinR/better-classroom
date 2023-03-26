@@ -98,8 +98,8 @@ function setupCreateFolderModalClassList() {
 	});
 }
 
-// disabled due to bug (icon disappears when reordering classes)
-// to enable, ensure that folder_setting_button.html is stated in manifest.json
+// !disabled due to bug (icon disappears when reordering classes)
+// !to enable, ensure that folder_setting_button.html is stated in manifest.json
 function setupFolderIcon() {
 	if (allClasses == null) return;
 
@@ -183,11 +183,22 @@ function toggleFolderSettingModal(status) {
 		nameInputField = document.getElementById(
 			"folder-setting-modal-folder-name"
 		);
-		nameInputField.value =
+
+		classSelectionLabel = document.getElementById(
+			"folder-setting-modal-class-select-label"
+		);
+		classSelectionLabel.innerText = "Select Classes";
+
+		_folderName =
 			folders[selectedFolder] ||
 			topStaticFolders[selectedFolder] ||
 			bottomStaticFolders[selectedFolder] ||
 			"No Folder Selected";
+
+		nameInputField.value = _folderName;
+		document.getElementsByClassName(
+			"folder-setting-modal-title"
+		)[0].innerText = `${_folderName} Settings`;
 		if (
 			selectedFolder in topStaticFolders ||
 			selectedFolder in bottomStaticFolders ||
@@ -196,6 +207,7 @@ function toggleFolderSettingModal(status) {
 			folderSettingDeleteButton.disabled = true;
 			folderSettingsaveButton.disabled = true;
 			nameInputField.disabled = true;
+			classSelectionLabel.innerText += " (Uneditable for this folder)";
 		} else {
 			folderSettingDeleteButton.disabled = false;
 			folderSettingsaveButton.disabled = false;
@@ -232,6 +244,12 @@ function createFolder(name) {
 function deleteFolder(id) {
 	delete folders[id];
 	delete folderActiveClasses[id];
+
+	selectedFolder = "__All Classes__";
+
+	toggleFolderSettingModal(false);
+	renderFolderDropdown();
+	renderFolders();
 }
 
 function setup() {
