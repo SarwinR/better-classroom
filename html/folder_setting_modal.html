@@ -1,5 +1,5 @@
 <style>
-	#folder-creation-modal {
+	#folder-setting-modal {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -37,7 +37,7 @@
 	}
 
 	/* Button styles */
-	#folder-creation-modal-modal-close {
+	#folder-setting-modal-modal-close {
 		background-color: #fff;
 		border-radius: 50%;
 		margin-top: 0;
@@ -49,27 +49,49 @@
 		right: 12px;
 	}
 
-	#folder-creation-modal-modal-submit {
+	#folder-setting-modal-modal-delete {
 		margin-top: 30px;
+		margin-right: 10px;
 		padding: 12px 24px;
 		border: none;
 		border-radius: 4px;
 		color: #fff;
-		background-color: #1a73e8;
+		background-color: #db4437;
 		cursor: pointer;
 		position: relative;
 		float: right;
 	}
 
-	#folder-creation-modal-modal-close:hover {
+	#folder-setting-modal-modal-submit {
+		margin-top: 30px;
+		padding: 12px 24px;
+		border: none;
+		border-radius: 4px;
+		color: #fff;
+		background-color: #0f61c7;
+		cursor: pointer;
+		position: relative;
+		float: right;
+	}
+
+	#folder-setting-modal-modal-close:hover {
 		background-color: #dadce0;
 	}
 
-	#folder-creation-modal-modal-submit:hover {
-		background-color: #0f61c7;
+	#folder-setting-modal-modal-delete:hover {
+		background-color: #c23327;
 	}
 
-	.folder-creation-modal-title {
+	#folder-setting-modal-modal-submit:hover {
+		background-color: #0b4e9f;
+	}
+
+	#folder-setting-modal-modal-submit:disabled,
+	#folder-setting-modal-modal-delete:disabled {
+		background-color: #dadce0;
+	}
+
+	.folder-setting-modal-title {
 		margin-bottom: 20px;
 		font-size: 20px;
 		font-weight: 500;
@@ -77,7 +99,7 @@
 	}
 
 	/* Form styles */
-	.folder-creation-form {
+	.folder-setting-form {
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
@@ -89,8 +111,8 @@
 		color: #5f6368;
 	}
 
-	.folder-creation-input[type="text"],
-	#folder-creation-modal-class-select {
+	.folder-setting-input[type="text"],
+	#folder-setting-modal-class-select {
 		margin-bottom: 10px;
 		font-size: 14px;
 		padding: 12px 16px;
@@ -117,11 +139,11 @@
 	}
 </style>
 
-<div id="folder-creation-modal">
+<div id="folder-setting-modal">
 	<div id="modal-form">
-		<div class="folder-creation-modal-title-bar">
-			<h2 class="folder-creation-modal-title">Create New Folder</h2>
-			<button id="folder-creation-modal-modal-close">
+		<div class="folder-setting-modal-title-bar">
+			<h2 class="folder-setting-modal-title">FolderName Settings</h2>
+			<button id="folder-setting-modal-modal-close">
 				<?xml version="1.0" encoding="utf-8"?>
 				<svg
 					width="20px"
@@ -143,14 +165,14 @@
 				</svg>
 			</button>
 		</div>
-		<form class="folder-creation-form">
-			<label class="label" for="folder-creation-modal-folder-name"
+		<form class="folder-setting-form">
+			<label class="label" for="folder-setting-modal-folder-name"
 				>Folder Name</label
 			>
 			<input
-				class="folder-creation-input"
+				class="folder-setting-input"
 				type="text"
-				id="folder-creation-modal-folder-name"
+				id="folder-setting-modal-folder-name"
 				name="folder-name"
 			/>
 		</form>
@@ -158,13 +180,14 @@
 		<label class="label" for="folder-creation-modal-classes-name"
 			>Select Classes</label
 		>
-		<select id="folder-creation-modal-class-select" multiple>
+		<select id="folder-setting-modal-class-select" multiple>
 			<option class="class-option" disabled>
 				Loading Class List . . .
 			</option>
 		</select>
 
-		<button id="folder-creation-modal-modal-submit">Create Folder</button>
+		<button id="folder-setting-modal-modal-submit">Save Changes</button>
+		<button id="folder-setting-modal-modal-delete">Delete Folder</button>
 	</div>
 
 	<!-- The dimmed background -->

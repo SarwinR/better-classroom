@@ -11,7 +11,9 @@ classesDictionary = {};
 folderCreationSelectedClasses = [];
 allClasses = null;
 
+folderSettingModal = null;
 folderCreationModal = null;
+
 selectedFolder = "__All Classes__";
 
 topStaticFolders = { "__All Classes__": "All Classes" };
@@ -96,6 +98,8 @@ function setupCreateFolderModalClassList() {
 	});
 }
 
+// disabled due to bug (icon disappears when reordering classes)
+// to enable, ensure that folder_setting_button.html is stated in manifest.json
 function setupFolderIcon() {
 	if (allClasses == null) return;
 
@@ -110,7 +114,7 @@ function setupFolderIcon() {
 				folderSettingButton.addEventListener("click", () => {});
 
 				allClasses[i]
-					.querySelector(".SZ0kZe")
+					.querySelector(".SZ0kZe") // class = SZ0kZe is the div that contains the 2 icons
 					.appendChild(folderSettingButton);
 			}
 		});
@@ -156,11 +160,56 @@ function submitFolderCreationForm() {
 }
 
 function toggleFolderCreationModal(status) {
-	folderCreationFormStatus = status;
 	if (status) {
 		folderCreationModal.style.display = "flex";
 	} else {
 		folderCreationModal.style.display = "none";
+	}
+}
+
+function toggleFolderSettingModal(status) {
+	if (status) {
+		folderSettingModal.style.display = "flex";
+
+		// setup delete button
+		// if folder is not a static folder or if no folder is selected
+		// then disable delete button, lock name input, lock class selection, disable save button
+		folderSettingDeleteButton = document.getElementById(
+			"folder-setting-modal-modal-delete"
+		);
+		folderSettingsaveButton = document.getElementById(
+			"folder-setting-modal-modal-submit"
+		);
+		nameInputField = document.getElementById(
+			"folder-setting-modal-folder-name"
+		);
+		nameInputField.value =
+			folders[selectedFolder] ||
+			topStaticFolders[selectedFolder] ||
+			bottomStaticFolders[selectedFolder] ||
+			"No Folder Selected";
+		if (
+			selectedFolder in topStaticFolders ||
+			selectedFolder in bottomStaticFolders ||
+			selectedFolder == null
+		) {
+			folderSettingDeleteButton.disabled = true;
+			folderSettingsaveButton.disabled = true;
+			nameInputField.disabled = true;
+		} else {
+			folderSettingDeleteButton.disabled = false;
+			folderSettingsaveButton.disabled = false;
+			nameInputField.disabled = false;
+			// setup delete button
+			folderSettingDeleteButton.addEventListener("click", () => {
+				deleteFolder(selectedFolder);
+			});
+			folderSettingsaveButton.addEventListener("click", () => {
+				console.log("Saving Changes");
+			});
+		}
+	} else {
+		folderSettingModal.style.display = "none";
 	}
 }
 
@@ -179,8 +228,14 @@ function createFolder(name) {
 	renderFolders();
 }
 
+// folder name behaves as the id
+function deleteFolder(id) {
+	delete folders[id];
+	delete folderActiveClasses[id];
+}
+
 function setup() {
-	// append folder creation modal to body
+	// setting up folder creation modal
 	fetch(chrome.runtime.getURL("html/folder_creation_modal.html"))
 		.then((response) => response.text())
 		.then((data) => {
@@ -192,7 +247,7 @@ function setup() {
 				"folder-creation-modal"
 			);
 
-			folderCreationModal.style.display = "none";
+			toggleFolderCreationModal(false);
 
 			// setup close button
 			folderCreationCloseButton = document.getElementById(
@@ -209,8 +264,6 @@ function setup() {
 			folderCreationSubmitButton.addEventListener("click", () => {
 				submitFolderCreationForm();
 			});
-
-			folderCreationFormStatus = false;
 		});
 
 	fetch(chrome.runtime.getURL("html/dropdown_list.html"))
@@ -245,7 +298,30 @@ function setup() {
 
 			folderEditButton = document.getElementById("folder-edit-button");
 			folderEditButton.addEventListener("click", () => {
-				console.log("edit");
+				toggleFolderSettingModal(true);
+			});
+		});
+
+	// setting up folder setting modal
+	fetch(chrome.runtime.getURL("html/folder_setting_modal.html"))
+		.then((response) => response.text())
+		.then((data) => {
+			folderSettingModal = document.createElement("div");
+			folderSettingModal.innerHTML = data;
+			document.body.appendChild(folderSettingModal);
+
+			folderSettingModal = document.getElementById(
+				"folder-setting-modal"
+			);
+
+			toggleFolderSettingModal(false);
+
+			// setup close button
+			folderSettingCloseButton = document.getElementById(
+				"folder-setting-modal-modal-close"
+			);
+			folderSettingCloseButton.addEventListener("click", () => {
+				toggleFolderSettingModal(false);
 			});
 		});
 
@@ -255,7 +331,7 @@ function setup() {
 		fileListObserver.disconnect();
 		allClasses = document.getElementsByClassName(classClassName);
 		renderFolders();
-		setupFolderIcon();
+		// setupFolderIcon(); // disabled for now (due to bug when reordering classes)
 	});
 
 	fileListObserver.observe(folderList, config);
