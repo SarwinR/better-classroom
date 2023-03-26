@@ -36,18 +36,18 @@ function renderFolderDropdown() {
 	dropdown.innerHTML = "";
 
 	Object.keys(topStaticFolders).forEach((k) => {
-		dropdown.innerHTML += `<option value="${k}">${topStaticFolders[k]}</option>`;
+		dropdown.innerHTML += `<option class="folder-dropdown-option" value="${k}">${topStaticFolders[k]}</option>`;
 	});
 
 	Object.keys(folders).forEach((k) => {
-		dropdown.innerHTML += `<option value="${k}">${folders[k]}</option>`;
+		dropdown.innerHTML += `<option class="folder-dropdown-option" value="${k}">${folders[k]}</option>`;
 	});
 
 	Object.keys(bottomStaticFolders).forEach((k) => {
 		if (k == "__Separator__")
-			dropdown.innerHTML += `<option value="${k}" disabled>${bottomStaticFolders[k]}</option>`;
+			dropdown.innerHTML += `<option class="folder-dropdown-option" value="${k}" disabled>${bottomStaticFolders[k]}</option>`;
 		else
-			dropdown.innerHTML += `<option value="${k}">${bottomStaticFolders[k]}</option>`;
+			dropdown.innerHTML += `<option class="folder-dropdown-option" value="${k}">${bottomStaticFolders[k]}</option>`;
 	});
 
 	dropdown.value = selectedFolder;
@@ -60,7 +60,7 @@ function setupCreateFolderModalClassList() {
 	classSelectionList.innerHTML = "";
 
 	Object.keys(classesDictionary).forEach((k) => {
-		classSelectionList.innerHTML += `<option value="${k}">${classesDictionary[k]}</option>`;
+		classSelectionList.innerHTML += `<option class="class-option" value="${k}">${classesDictionary[k]}</option>`;
 	});
 
 	folderCreationSelectedClasses = [];
@@ -241,6 +241,11 @@ function setup() {
 					selectedFolder = folderDropdown.value;
 					renderFolders();
 				}
+			});
+
+			folderEditButton = document.getElementById("folder-edit-button");
+			folderEditButton.addEventListener("click", () => {
+				console.log("edit");
 			});
 		});
 

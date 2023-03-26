@@ -3,8 +3,27 @@
 		padding-right: 25px;
 	}
 
+	#folder-edit-button {
+		color: #202124;
+		padding: 1px 16px 10px;
+		margin-right: 10px;
+		border-radius: 8px;
+		border: none;
+		box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+		background-color: #f1f3f4;
+		cursor: pointer;
+	}
+
+	#folder-edit-button:hover {
+		background-color: #e8eaed;
+	}
+
+	#edit-icon {
+		transform: translate(0, 8px);
+	}
+
 	/* styling the select container */
-	select {
+	#folder-dropdown {
 		font-size: 14px;
 		font-weight: 500;
 		color: #202124;
@@ -27,8 +46,12 @@
 		background-position: right 8px center;
 	}
 
+	#folder-dropdown:hover {
+		background-color: #e8eaed;
+	}
+
 	/* styling the options */
-	option {
+	.folder-dropdown-option {
 		font-size: 14px;
 		font-weight: 500;
 		color: #202124;
@@ -37,12 +60,12 @@
 	}
 
 	/* styling the hover state */
-	option:hover {
+	.folder-dropdown-option:hover {
 		background-color: #e8eaed;
 	}
 
 	/* styling the active state */
-	option:checked {
+	.folder-dropdown-option:checked {
 		background-color: #fff;
 		font-weight: 700;
 		color: #1a73e8;
@@ -50,5 +73,27 @@
 </style>
 
 <div id="folder-dropdown-div">
+	<button id="folder-edit-button">
+		<?xml version="1.0" encoding="utf-8"?>
+		<svg
+			id="edit-icon"
+			width="24"
+			height="24px"
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<g id="Edit / Edit_Pencil_01">
+				<path
+					id="Vector"
+					d="M12 8.00012L4 16.0001V20.0001L8 20.0001L16 12.0001M12 8.00012L14.8686 5.13146L14.8704 5.12976C15.2652 4.73488 15.463 4.53709 15.691 4.46301C15.8919 4.39775 16.1082 4.39775 16.3091 4.46301C16.5369 4.53704 16.7345 4.7346 17.1288 5.12892L18.8686 6.86872C19.2646 7.26474 19.4627 7.46284 19.5369 7.69117C19.6022 7.89201 19.6021 8.10835 19.5369 8.3092C19.4628 8.53736 19.265 8.73516 18.8695 9.13061L18.8686 9.13146L16 12.0001M12 8.00012L16 12.0001"
+					stroke="#000000"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				/>
+			</g>
+		</svg>
+	</button>
 	<select id="folder-dropdown" name="folders"></select>
 </div>
