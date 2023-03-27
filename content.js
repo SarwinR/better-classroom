@@ -53,15 +53,15 @@ function saveLastSelectedFolder() {
 }
 
 function saveFolders() {
-	console.log("Saving folders");
+	_data = {
+		folders: folders,
+		folderActiveClasses: folderActiveClasses,
+	};
 
-	// save folders to chrome storage and output to console
+	// save folders to chrome storage and output to consol
 	chrome.runtime.sendMessage({
 		action: "saveData",
-		data: {
-			folders: folders,
-			folderActiveClasses: folderActiveClasses,
-		},
+		data: _data,
 	});
 }
 
@@ -258,6 +258,7 @@ function saveChanges(folderId, folderName, folderClasses) {
 	folderActiveClasses[folderName] = folderClasses;
 	selectedFolder = folderName;
 
+	saveLastSelectedFolder();
 	saveFolders();
 
 	renderFolderDropdown();

@@ -16,8 +16,9 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 		);
 	} else if (request.action == "getLastSelectedFolder") {
 		chrome.storage.local.get(["lastSelectedFolder"], function (result) {
-			if (result.lastSelectedFolder == undefined)
+			if (result.lastSelectedFolder == undefined) {
 				result.lastSelectedFolder = "__All Classes__";
+			}
 
 			sendResponse(result);
 		});
