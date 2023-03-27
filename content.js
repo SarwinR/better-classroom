@@ -53,22 +53,25 @@ function saveLastSelectedFolder() {
 }
 
 function saveFolders() {
-	_data = {
-		folders: folders,
-		folderActiveClasses: folderActiveClasses,
-	};
-
-	// save folders to chrome storage and output to consol
-	chrome.runtime.sendMessage({
-		action: "saveData",
-		data: _data,
-	});
+	// save folders to chrome storage and output to console
+	chrome.runtime.sendMessage(
+		{
+			action: "saveData",
+			folderData: {
+				folders: folders,
+				folderActiveClasses: folderActiveClasses,
+			},
+		},
+		function (response) {
+			console.log(response);
+		}
+	);
 }
 
 function loadFolders() {
 	chrome.runtime.sendMessage({ action: "getData" }, function (response) {
-		folders = response.folders;
-		folderActiveClasses = response.folderActiveClasses;
+		folders = response.folderData.folders;
+		folderActiveClasses = response.folderData.folderActiveClasses;
 		renderFolderDropdown();
 	});
 }
