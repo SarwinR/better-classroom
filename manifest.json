@@ -29,7 +29,13 @@
 	"background": {
 		"service_worker": "main.js"
 	},
-	"permissions": ["tabs", "activeTab", "scripting", "nativeMessaging"],
+	"permissions": [
+		"tabs",
+		"activeTab",
+		"scripting",
+		"nativeMessaging",
+		"storage"
+	],
 	"content_scripts": [
 		{
 			"matches": [
