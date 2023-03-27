@@ -10,13 +10,13 @@ The Better Classroom extension is designed to help users better manage their cla
 
 ## Download & Install
 ### Github Releases (Manual Installation)
-https://github.com/SarwinR/better-classroom/releases
+[Releases](https://github.com/SarwinR/better-classroom/releases)
 
 ### Edge Add-ons
--under review-
+<img src="https://img.shields.io/badge/Status-Under%20Review-orange.svg"/>
 
 ### Chrome Web Store
--soon-
+<img src="https://img.shields.io/badge/Status-Major%20Issue-red.svg"/>
 
 ###
 
