@@ -7,8 +7,9 @@ inContentWindowNavigationBarClassName = "xgkURe mhCMAe";
 classClassName = "gHz6xd Aopndd rZXyy";
 classTitleClassName = "YVvGBb z3vRcc-ZoZQ1";
 
+var loadingClasses = true;
 classesDictionary = {};
-folderCreationSelectedClasses = [];
+folderSelectedClasses = [];
 allClasses = null;
 
 folderSettingModal = null;
@@ -55,19 +56,58 @@ function renderFolderDropdown() {
 	dropdown.value = selectedFolder;
 }
 
-function setupCreateFolderModalClassList() {
-	classSelectionList = document.getElementById(
-		"folder-creation-modal-class-select"
-	);
+function folderId2ClassIds(folderId) {
+	if (folderId == "__All Classes__") {
+		return Object.keys(classesDictionary);
+	} else {
+		return folderActiveClasses[folderId];
+	}
+}
+
+function isFolderEditable(folderId) {
+	return !Object.keys(topStaticFolders).includes(folderId);
+}
+
+//todo repurpose this function
+function setupFolderModalClassList(
+	elementId,
+	activeClasses = [],
+	isEditable = true
+) {
+	classSelectionList = document.getElementById(elementId);
 	classSelectionList.innerHTML = "";
 
+	if (loadingClasses) {
+		classSelectionList.innerHTML = `<option class="class-option" disabled>Loading Class List . . .</option>`;
+		return;
+	}
+	if (allClasses == null) {
+		classSelectionList.innerHTML = `<option class="class-option" disabled>No Classes Found</option>`;
+		return;
+	}
+
 	Object.keys(classesDictionary).forEach((k) => {
-		classSelectionList.innerHTML += `<option class="class-option" value="${k}">${classesDictionary[k]}</option>`;
+		if (isEditable)
+			classSelectionList.innerHTML += `<option class="class-option" value="${k}">${classesDictionary[k]}</option>`;
+		else
+			classSelectionList.innerHTML += `<option class="class-option" value="${k}" disabled>${classesDictionary[k]}</option>`;
 	});
 
-	folderCreationSelectedClasses = [];
+	// activate all classes in activeClasses
+	folderSelectedClasses = activeClasses;
+	if (folderSelectedClasses != null) {
+		for (let i = 0; i < classSelectionList.options.length; i++) {
+			if (
+				folderSelectedClasses.includes(
+					classSelectionList.options[i].value
+				)
+			) {
+				classSelectionList.options[i].selected = true;
+			}
+		}
+	}
 
-	// check for listner already added
+	// check for listener already added
 	if (classSelectionList.hasAttribute("listener-added")) return;
 
 	classSelectionList.setAttribute("listener-added", true);
@@ -75,20 +115,19 @@ function setupCreateFolderModalClassList() {
 		_classSelectionListValue = classSelectionList.value;
 		classSelectionList.value = "";
 
-		if (folderCreationSelectedClasses.includes(_classSelectionListValue)) {
+		if (folderSelectedClasses.includes(_classSelectionListValue)) {
 			// remove class from selected classes
-			folderCreationSelectedClasses =
-				folderCreationSelectedClasses.filter(
-					(item) => item != _classSelectionListValue
-				);
+			folderSelectedClasses = folderSelectedClasses.filter(
+				(item) => item != _classSelectionListValue
+			);
 		} else {
-			folderCreationSelectedClasses.push(_classSelectionListValue);
+			folderSelectedClasses.push(_classSelectionListValue);
 		}
 
-		// set all options in folderCreationSelectedClasses to selected
+		// set all options in folderSelectedClasses to selected
 		for (let i = 0; i < classSelectionList.options.length; i++) {
 			if (
-				folderCreationSelectedClasses.includes(
+				folderSelectedClasses.includes(
 					classSelectionList.options[i].value
 				)
 			) {
@@ -121,7 +160,7 @@ function setupFolderIcon() {
 }
 
 function renderFolders() {
-	if (allClasses == null) return;
+	if (allClasses == null) return; // ! set message to no classes found
 
 	classesDictionary = {};
 
@@ -145,8 +184,6 @@ function renderFolders() {
 			allClasses[i].style.display = "none";
 		}
 	}
-
-	setupCreateFolderModalClassList();
 }
 
 function submitFolderCreationForm() {
@@ -161,10 +198,31 @@ function submitFolderCreationForm() {
 
 function toggleFolderCreationModal(status) {
 	if (status) {
+		setupFolderModalClassList("folder-creation-modal-class-select");
 		folderCreationModal.style.display = "flex";
 	} else {
+		folderSelectedClasses = [];
 		folderCreationModal.style.display = "none";
 	}
+}
+
+// currently oldFolderName, newFolderName, and newFolderClasses
+function saveChanges(folderId, folderName, folderClasses) {
+	console.log(folders);
+	console.log(folderActiveClasses);
+
+	delete folderActiveClasses[folderId];
+	delete folders[folderId];
+
+	folders[folderName] = folderName;
+	folderActiveClasses[folderName] = folderClasses;
+	selectedFolder = folderName;
+
+	renderFolderDropdown();
+	renderFolders();
+
+	console.log(folders);
+	console.log(folderActiveClasses);
 }
 
 function toggleFolderSettingModal(status) {
@@ -204,11 +262,22 @@ function toggleFolderSettingModal(status) {
 			selectedFolder in bottomStaticFolders ||
 			selectedFolder == null
 		) {
+			// uneditable folder
+			setupFolderModalClassList(
+				"folder-setting-modal-class-select",
+				folderId2ClassIds(selectedFolder),
+				isFolderEditable(selectedFolder)
+			);
 			folderSettingDeleteButton.disabled = true;
 			folderSettingsaveButton.disabled = true;
 			nameInputField.disabled = true;
 			classSelectionLabel.innerText += " (Uneditable for this folder)";
 		} else {
+			// editable folder
+			setupFolderModalClassList(
+				"folder-setting-modal-class-select",
+				folderId2ClassIds(selectedFolder)
+			);
 			folderSettingDeleteButton.disabled = false;
 			folderSettingsaveButton.disabled = false;
 			nameInputField.disabled = false;
@@ -217,10 +286,17 @@ function toggleFolderSettingModal(status) {
 				deleteFolder(selectedFolder);
 			});
 			folderSettingsaveButton.addEventListener("click", () => {
-				console.log("Saving Changes");
+				console.log("saving: " + folderSelectedClasses);
+				saveChanges(
+					selectedFolder,
+					nameInputField.value,
+					folderSelectedClasses
+				);
+				toggleFolderSettingModal(false);
 			});
 		}
 	} else {
+		folderSelectedClasses = [];
 		folderSettingModal.style.display = "none";
 	}
 }
@@ -233,7 +309,7 @@ function createFolder(name) {
 	// folder-id -- folder-name
 	folders[name] = name;
 	// folder-id -- [id, id, id]
-	folderActiveClasses[name] = folderCreationSelectedClasses;
+	folderActiveClasses[name] = folderSelectedClasses;
 
 	selectedFolder = name;
 	renderFolderDropdown();
@@ -349,6 +425,13 @@ function setup() {
 		fileListObserver.disconnect();
 		allClasses = document.getElementsByClassName(classClassName);
 		renderFolders();
+		loadingClasses = false;
+		setupFolderModalClassList("folder-creation-modal-class-select");
+		setupFolderModalClassList(
+			"folder-setting-modal-class-select",
+			folderId2ClassIds(selectedFolder),
+			isFolderEditable(selectedFolder)
+		);
 		// setupFolderIcon(); // disabled for now (due to bug when reordering classes)
 	});
 
