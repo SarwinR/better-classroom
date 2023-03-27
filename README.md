@@ -13,12 +13,20 @@ The Better Classroom extension is designed to help users better manage their cla
 [Releases](https://github.com/SarwinR/better-classroom/releases)
 
 ### Edge Add-ons
-<img src="https://img.shields.io/badge/Status-Under%20Review-orange.svg"/>
+_Under-Review_
 
 ### Chrome Web Store
-<img src="https://img.shields.io/badge/Status-Major%20Issue-red.svg"/>
+_Unrealeased_
 
-###
+<br>
+
+## Browsers
+
+|Browsers|Status|
+|------------|----------------------|
+|Microsoft Edge|<img src="https://img.shields.io/badge/Status-Fully%20Functional-green.svg"/>|
+|Google Chrome|<img src="https://img.shields.io/badge/Status-Not%20Functional-red.svg"/>|
+|Brave Browser|<img src="https://img.shields.io/badge/Status-Not%20Tested-grey.svg"/>|
 
 <br>
 
