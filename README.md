@@ -1,2 +1,2 @@
 # better-classroom
-An extension for chromium based browser that adds more features to the Google Classroom website. 
+The Better Classroom extension is designed to help users better manage their classes by allowing them to create folders within Google Classroom. With this extension, users can easily organize their classes by grouping them into folders based on subject, grade level, or any other criteria they choose. The extension provides a simple and intuitive interface for creating, renaming, and deleting folders, as well as moving classes between folders. By making it easier to manage and navigate through their classes, the Google Classroom Folder Organizer can help users save time and stay on top of their academic responsibilities.
