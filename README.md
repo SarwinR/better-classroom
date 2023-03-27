@@ -1,6 +1,8 @@
 # Better Classroom
 The Better Classroom extension is designed to help users better manage their classes by allowing them to create folders within Google Classroom. With this extension, users can easily organize their classes by grouping them into folders based on subject, grade level, or any other criteria they choose. The extension provides a simple and intuitive interface for creating, renaming, and deleting folders, as well as moving classes between folders. By making it easier to manage and navigate through their classes, the Google Classroom Folder Organizer can help users save time and stay on top of their academic responsibilities.
 
+<a href="https://github.com/SarwinR/better-classroom/issues"><img src="https://img.shields.io/badge/Suggest-Feature-green.svg"/></a> <a href="https://github.com/SarwinR/better-classroom/issues"><img src="https://img.shields.io/badge/Report-Bug-red.svg"/></a>
+
 <br>
 
 ## Support Me 
@@ -8,32 +10,15 @@ The Better Classroom extension is designed to help users better manage their cla
 
 <br>
 
-## Download & Install
-### Github Releases (Manual Installation)
-[Releases](https://github.com/SarwinR/better-classroom/releases)
-
-### Edge Add-ons
-_Under-Review_
-
-### Chrome Web Store
-_Unrealeased_
-
-<br>
-
-## Browsers
-
-|Browsers|Status|
-|------------|----------------------|
-|Microsoft Edge|<img src="https://img.shields.io/badge/Status-Not%20Functional-red.svg"/>|
-|Google Chrome|<img src="https://img.shields.io/badge/Status-Not%20Functional-red.svg"/>|
-|Brave Browser|<img src="https://img.shields.io/badge/Status-Not%20Tested-grey.svg"/>|
+## Download Extension
+<img src="https://img.shields.io/badge/Edge%20Add%20Ons-Under%20Review-orange.svg"/> <img src="https://img.shields.io/badge/Chrome%20Web%20Store-Not%20Yet%20Posted-red.svg"/>
 
 <br>
 
 ## Known Bugs
-The bus are currently on vacation 🐛🧳
+- [ ] The bus are currently on vacation 🐛🧳
 
 <br>
 
 ## Future Improvements & Features
-The sky is the limit ✈️
+- [ ] The sky is the limit ✈️
