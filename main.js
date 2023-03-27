@@ -1,30 +1,34 @@
-url_regex = new RegExp("https://classroom.google.com/u/[0-9]{1,2}/h");
-console.log("main");
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+	if (request.action == "saveData") {
+		chrome.storage.local.set(request.data, function () {
+			sendResponse({ status: "success" });
+		});
+	} else if (request.action == "getData") {
+		chrome.storage.local.get(
+			["folders", "folderActiveClasses"],
+			function (result) {
+				if (result.folders == undefined) result.folders = [];
+				if (result.folderActiveClasses == undefined)
+					result.folderActiveClasses = [];
 
-// function hideClassroom(info) {
-// 	console.log("Didinf");
-// }
+				sendResponse(result);
+			}
+		);
+	} else if (request.action == "getLastSelectedFolder") {
+		chrome.storage.local.get(["lastSelectedFolder"], function (result) {
+			if (result.lastSelectedFolder == undefined)
+				result.lastSelectedFolder = "__All Classes__";
 
-// function showContextMenu() {
-// 	chrome.contextMenus.removeAll();
+			sendResponse(result);
+		});
+	} else if (request.action == "setLastSelectedFolder") {
+		chrome.storage.local.set(
+			{ lastSelectedFolder: request.data.lastSelectedFolder },
+			function () {
+				sendResponse({ status: "success" });
+			}
+		);
+	}
 
-// 	chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
-// 		if (tabs[0].url.match(url_regex)) {
-// 			chrome.contextMenus.create({
-// 				id: "1",
-// 				title: "Hide Classroom",
-// 			});
-// 		}
-// 	});
-// }
-
-// chrome.tabs.onActivated.addListener(showContextMenu);
-// chrome.tabs.onUpdated.addListener(showContextMenu);
-
-// chrome.contextMenus.onClicked.addListener((info, tab) => {
-// 	console.log(info);
-
-// 	if (info.menuItemId === "1") {
-// 		hideClassroom(info);
-// 	}
-// });
+	return true;
+});

@@ -23,10 +23,10 @@ bottomStaticFolders = {
 	"__Add Folder__": "Add Folder",
 };
 
-folders = { Archive: "Archive" };
-folderActiveClasses = {
-	Archive: ["552499388433", "176917870822", "176066555629"],
-};
+folders = {};
+folderActiveClasses = {};
+loadFolders();
+loadLastSelectedFolder();
 
 folderList = document.getElementsByClassName(folderListClassName)[0];
 contentWindow = document.getElementsByClassName(contentWindowClassName)[0];
@@ -34,8 +34,47 @@ navigationBar = document.getElementsByClassName(navigationBarClassName)[0];
 
 setup();
 
+function loadLastSelectedFolder() {
+	chrome.runtime.sendMessage(
+		{ action: "getLastSelectedFolder" },
+		function (response) {
+			selectedFolder = response.lastSelectedFolder;
+			renderFolders();
+			renderFolderDropdown();
+		}
+	);
+}
+
+function saveLastSelectedFolder() {
+	chrome.runtime.sendMessage({
+		action: "setLastSelectedFolder",
+		data: { lastSelectedFolder: selectedFolder },
+	});
+}
+
+function saveFolders() {
+	// save folders to chrome storage and output to console
+	chrome.runtime.sendMessage({
+		action: "saveData",
+		data: {
+			folders: folders,
+			folderActiveClasses: folderActiveClasses,
+		},
+	});
+}
+
+function loadFolders() {
+	chrome.runtime.sendMessage({ action: "getData" }, function (response) {
+		folders = response.folders;
+		folderActiveClasses = response.folderActiveClasses;
+		renderFolderDropdown();
+	});
+}
+
 function renderFolderDropdown() {
 	dropdown = document.getElementById("folder-dropdown");
+	if (dropdown == null) return;
+
 	dropdown.innerHTML = "";
 
 	Object.keys(topStaticFolders).forEach((k) => {
@@ -208,9 +247,6 @@ function toggleFolderCreationModal(status) {
 
 // currently oldFolderName, newFolderName, and newFolderClasses
 function saveChanges(folderId, folderName, folderClasses) {
-	console.log(folders);
-	console.log(folderActiveClasses);
-
 	delete folderActiveClasses[folderId];
 	delete folders[folderId];
 
@@ -218,11 +254,10 @@ function saveChanges(folderId, folderName, folderClasses) {
 	folderActiveClasses[folderName] = folderClasses;
 	selectedFolder = folderName;
 
+	saveFolders();
+
 	renderFolderDropdown();
 	renderFolders();
-
-	console.log(folders);
-	console.log(folderActiveClasses);
 }
 
 function toggleFolderSettingModal(status) {
@@ -281,19 +316,6 @@ function toggleFolderSettingModal(status) {
 			folderSettingDeleteButton.disabled = false;
 			folderSettingsaveButton.disabled = false;
 			nameInputField.disabled = false;
-			// setup delete button
-			folderSettingDeleteButton.addEventListener("click", () => {
-				deleteFolder(selectedFolder);
-			});
-			folderSettingsaveButton.addEventListener("click", () => {
-				console.log("saving: " + folderSelectedClasses);
-				saveChanges(
-					selectedFolder,
-					nameInputField.value,
-					folderSelectedClasses
-				);
-				toggleFolderSettingModal(false);
-			});
 		}
 	} else {
 		folderSelectedClasses = [];
@@ -311,7 +333,10 @@ function createFolder(name) {
 	// folder-id -- [id, id, id]
 	folderActiveClasses[name] = folderSelectedClasses;
 
+	saveFolders();
+
 	selectedFolder = name;
+	saveLastSelectedFolder();
 	renderFolderDropdown();
 	renderFolders();
 }
@@ -322,6 +347,9 @@ function deleteFolder(id) {
 	delete folderActiveClasses[id];
 
 	selectedFolder = "__All Classes__";
+	saveLastSelectedFolder();
+
+	saveFolders();
 
 	toggleFolderSettingModal(false);
 	renderFolderDropdown();
@@ -386,6 +414,7 @@ function setup() {
 
 				if (folderDropdown.value != selectedFolder) {
 					selectedFolder = folderDropdown.value;
+					saveLastSelectedFolder();
 					renderFolders();
 				}
 			});
@@ -415,6 +444,30 @@ function setup() {
 				"folder-setting-modal-modal-close"
 			);
 			folderSettingCloseButton.addEventListener("click", () => {
+				toggleFolderSettingModal(false);
+			});
+
+			// setup delete button
+			folderSettingDeleteButton = document.getElementById(
+				"folder-setting-modal-modal-delete"
+			);
+
+			folderSettingDeleteButton.addEventListener("click", () => {
+				deleteFolder(selectedFolder);
+			});
+
+			folderSettingsaveButton = document.getElementById(
+				"folder-setting-modal-modal-submit"
+			);
+			folderSettingsaveButton.addEventListener("click", () => {
+				nameInputField = document.getElementById(
+					"folder-setting-modal-folder-name"
+				);
+				saveChanges(
+					selectedFolder,
+					nameInputField.value,
+					folderSelectedClasses
+				);
 				toggleFolderSettingModal(false);
 			});
 		});
