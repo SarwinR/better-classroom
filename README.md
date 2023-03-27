@@ -24,7 +24,7 @@ _Unrealeased_
 
 |Browsers|Status|
 |------------|----------------------|
-|Microsoft Edge|<img src="https://img.shields.io/badge/Status-Fully%20Functional-green.svg"/>|
+|Microsoft Edge|<img src="https://img.shields.io/badge/Status-Not%20Functional-red.svg"/>|
 |Google Chrome|<img src="https://img.shields.io/badge/Status-Not%20Functional-red.svg"/>|
 |Brave Browser|<img src="https://img.shields.io/badge/Status-Not%20Tested-grey.svg"/>|
 
