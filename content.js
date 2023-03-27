@@ -109,7 +109,6 @@ function isFolderEditable(folderId) {
 	return !Object.keys(topStaticFolders).includes(folderId);
 }
 
-//todo repurpose this function
 function setupFolderModalClassList(
 	elementId,
 	activeClasses = [],
