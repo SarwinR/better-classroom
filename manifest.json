@@ -29,19 +29,10 @@
 	"background": {
 		"service_worker": "main.js"
 	},
-	"permissions": [
-		"tabs",
-		"activeTab",
-		"scripting",
-		"nativeMessaging",
-		"storage"
-	],
+	"permissions": ["nativeMessaging", "storage"],
 	"content_scripts": [
 		{
-			"matches": [
-				"https://classroom.google.com/u/*/",
-				"https://classroom.google.com/u/*/h"
-			],
+			"matches": ["https://classroom.google.com/*"],
 			"js": ["content.js"],
 			"run_at": "document_end"
 		}

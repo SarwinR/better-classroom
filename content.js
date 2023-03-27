@@ -53,6 +53,8 @@ function saveLastSelectedFolder() {
 }
 
 function saveFolders() {
+	console.log("Saving folders");
+
 	// save folders to chrome storage and output to console
 	chrome.runtime.sendMessage({
 		action: "saveData",
@@ -329,7 +331,7 @@ function resetFolderCreationForm() {
 	document.getElementById("folder-creation-modal-folder-name").value = "";
 }
 
-function validateFolderName(name) {
+function validateFolderName(name, isEdit = false) {
 	// check if folder is valid and if it already exists
 	if (name in topStaticFolders || name in bottomStaticFolders) {
 		alert("This folder name is reserved");
@@ -340,7 +342,7 @@ function validateFolderName(name) {
 		alert("Folder name cannot be empty");
 		return false;
 	}
-	if (name in folders) {
+	if (name in folders && isEdit == false) {
 		alert("Folder already exists");
 		return false;
 	}
@@ -484,7 +486,7 @@ function setup() {
 				nameInputField = document.getElementById(
 					"folder-setting-modal-folder-name"
 				);
-				if (validateFolderName(nameInputField.value)) {
+				if (validateFolderName(nameInputField.value, true)) {
 					saveChanges(
 						selectedFolder,
 						nameInputField.value,
