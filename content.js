@@ -230,9 +230,11 @@ function submitFolderCreationForm() {
 		"folder-creation-modal-folder-name"
 	).value;
 
-	createFolder(folderName);
-	toggleFolderCreationModal(false);
-	resetFolderCreationForm();
+	if (validateFolderName(folderName)) {
+		createFolder(folderName);
+		toggleFolderCreationModal(false);
+		resetFolderCreationForm();
+	}
 }
 
 function toggleFolderCreationModal(status) {
@@ -325,6 +327,25 @@ function toggleFolderSettingModal(status) {
 
 function resetFolderCreationForm() {
 	document.getElementById("folder-creation-modal-folder-name").value = "";
+}
+
+function validateFolderName(name) {
+	// check if folder is valid and if it already exists
+	if (name in topStaticFolders || name in bottomStaticFolders) {
+		alert("This folder name is reserved");
+		return false;
+	}
+
+	if (name == null || name == "") {
+		alert("Folder name cannot be empty");
+		return false;
+	}
+	if (name in folders) {
+		alert("Folder already exists");
+		return false;
+	}
+
+	return true;
 }
 
 function createFolder(name) {
@@ -463,12 +484,14 @@ function setup() {
 				nameInputField = document.getElementById(
 					"folder-setting-modal-folder-name"
 				);
-				saveChanges(
-					selectedFolder,
-					nameInputField.value,
-					folderSelectedClasses
-				);
-				toggleFolderSettingModal(false);
+				if (validateFolderName(nameInputField.value)) {
+					saveChanges(
+						selectedFolder,
+						nameInputField.value,
+						folderSelectedClasses
+					);
+					toggleFolderSettingModal(false);
+				}
 			});
 		});
 
