@@ -10,7 +10,7 @@ The Better Classroom extension is designed to help users better manage their cla
 
 ### From Extension Stores (Recommended)
 
-<img src="https://img.shields.io/badge/Edge%20Add%20Ons-Under%20Review-orange.svg"/> <img src="https://img.shields.io/badge/Chrome%20Web%20Store-Not%20Yet%20Posted-red.svg"/>
+<img src="https://img.shields.io/badge/Edge%20Add%20Ons-Under%20Review-orange.svg"/> <img src="https://img.shields.io/badge/Chrome%20Web%20Store-Under%20Review-orange.svg"/>
 
 ### From GitHub
 
@@ -35,3 +35,12 @@ The Better Classroom extension is designed to help users better manage their cla
 ## Future Improvements & Features
 
 -   [ ] Ability to rename classes
+
+<br>
+
+## Browser Support
+
+| Browser         | Status                                                                    |
+| --------------- | ------------------------------------------------------------------------- |
+| Chromium Based  | <img src="https://img.shields.io/badge/Status-Fully%20Functional-g.svg"/> |
+| Mozilla Firefox | <img src="https://img.shields.io/badge/Status-Needs%20Porting-red.svg"/>  |
