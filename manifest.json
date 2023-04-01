@@ -29,7 +29,7 @@
 	"background": {
 		"service_worker": "main.js"
 	},
-	"permissions": ["nativeMessaging", "storage"],
+	"permissions": ["storage"],
 	"content_scripts": [
 		{
 			"matches": ["https://classroom.google.com/*"],
