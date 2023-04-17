@@ -22,7 +22,7 @@ The Better Classroom extension is designed to help users better manage their cla
 
 ## Support Me
 
-<a href="https://www.buymeacoffee.com/sarwinr" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+<a href="https://www.buymeacoffee.com/sarwinr"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=sarwinr&button_colour=FFDD00&font_colour=000000&font_family=Poppins&outline_colour=000000&coffee_colour=ffffff" /></a>
 
 <br>
 
