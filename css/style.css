@@ -161,12 +161,6 @@
 	align-items: flex-start;
 }
 
-.label {
-	margin-bottom: 8px;
-	font-weight: 500;
-	color: #5f6368;
-}
-
 .folder-creation-input[type="text"],
 #folder-creation-modal-class-select {
 	margin-bottom: 10px;
@@ -176,27 +170,6 @@
 	border-radius: 4px;
 	width: 100%;
 	box-sizing: border-box;
-}
-
-.class-option {
-	border-radius: 5px;
-	font-size: 14px;
-	padding: 5px 10px 5px 10px;
-	margin: 5px 0;
-}
-
-.class-option:disabled {
-	background-color: #f1f3f4;
-	color: #5f6368;
-}
-
-.class-option:checked {
-	background-color: #1a73e8;
-	color: white;
-}
-
-.class-option:hover {
-	background-color: #f1f3f4;
 }
 
 /* ------------------------------ */
@@ -313,12 +286,6 @@
 	align-items: flex-start;
 }
 
-.label {
-	margin-bottom: 8px;
-	font-weight: 500;
-	color: #5f6368;
-}
-
 .folder-setting-input[type="text"],
 #folder-setting-modal-class-select {
 	margin-bottom: 10px;
@@ -330,11 +297,30 @@
 	box-sizing: border-box;
 }
 
+/* ------------------------------ */
+/* END:STYLES FOR FOLDER SETTING MODAL */
+/* ------------------------------ */
+
+/* ------------------------------ */
+/* START:SHARED STYLES FOR  FOLDER CREATION MODAL & FOLDER SETTING MODAL */
+/* ------------------------------ */
+
+.label {
+	margin-bottom: 8px;
+	font-weight: 500;
+	color: #5f6368;
+}
+
 .class-option {
 	border-radius: 5px;
 	font-size: 14px;
 	padding: 5px 10px 5px 10px;
 	margin: 5px 0;
+}
+
+.class-option:disabled {
+	background-color: #f1f3f4;
+	color: #5f6368;
 }
 
 .class-option:checked {
@@ -347,5 +333,5 @@
 }
 
 /* ------------------------------ */
-/* END:STYLES FOR FOLDER SETTING MODAL */
+/* END:SHARED STYLES FOR  FOLDER CREATION MODAL & FOLDER SETTING MODAL */
 /* ------------------------------ */
