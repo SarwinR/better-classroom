@@ -503,7 +503,11 @@ function setup() {
 	// create an observer instance
 	var config = { attributes: true, childList: true, characterData: true };
 	var fileListObserver = new MutationObserver(function (mutations) {
-		fileListObserver.disconnect();
+		//fileListObserver.disconnect(); //! remove this to get updates every time the file list changes
+		// todo: Add a flag to ensure the elements are loaded only once
+		// todo: Check the flag then intialize the elements if needed else only update the icons (the edit name and all)
+		console.log("file list changed");
+
 		allClasses = document.getElementsByClassName(classClassName);
 		renderFolders();
 		loadingClasses = false;
