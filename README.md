@@ -32,8 +32,10 @@ The Better Classroom extension is designed to help users better manage their cla
 
 <br>
 
-## Future Improvements & Features
+## Improvements & Features For Next Release
 
+-   [X] Optimize CSS
+-   [X] Add Dropdown Icon
 -   [ ] Ability to rename classes
 
 <br>
