@@ -8,7 +8,7 @@ classClassName = "gHz6xd Aopndd rZXyy";
 classTitleClassName = "YVvGBb z3vRcc-ZoZQ1";
 
 var loadingClasses = true;
-classesDictionary = {};
+classesDictionary = {}; // classID: className
 folderSelectedClasses = [];
 // an array of all elements with class classClassName
 allClasses = null;
@@ -31,10 +31,13 @@ folders = {};
 // classes in each folder
 folderActiveClasses = {};
 
-__folderName = {
-	601530280843: {
-		name: "Jeff",
-	},
+// Dictionary containing names of all classes whose name has been changed
+__userDefinedClassName = {
+	601530280843: "Test Name 000",
+	601530206270: "Test Name 001",
+	601530689816: "Test Name 002",
+	601530459194: "Test Name 003",
+	601529687040: "Test Name 004",
 };
 
 folderList = document.getElementsByClassName(folderListClassName)[0];
@@ -242,6 +245,8 @@ function setupFolderIcon() {
 					}
 				);
 			}
+
+			changeClassesName();
 		});
 }
 
@@ -260,6 +265,7 @@ function renderFolders() {
 
 		_folderActiveClasses = folderActiveClasses[selectedFolder] || [];
 
+		// if class is in active folder or no folder is selected, show class
 		if (
 			_folderActiveClasses.includes(allClasses[i].dataset["courseId"]) ||
 			selectedFolder == null ||
@@ -268,6 +274,17 @@ function renderFolders() {
 			allClasses[i].style.display = "flex";
 		} else {
 			allClasses[i].style.display = "none";
+		}
+	}
+}
+
+function changeClassesName() {
+	for (let i = 0; i < allClasses.length; i++) {
+		if (__userDefinedClassName[allClasses[i].dataset["courseId"]] != null) {
+			allClasses[i].getElementsByClassName(
+				classTitleClassName
+			)[0].innerText =
+				__userDefinedClassName[allClasses[i].dataset["courseId"]];
 		}
 	}
 }
@@ -550,6 +567,7 @@ function setup() {
 
 		allClasses = document.getElementsByClassName(classClassName);
 		renderFolders();
+		changeClassesName();
 		loadingClasses = false;
 		setupFolderModalClassList("folder-creation-modal-class-select");
 		setupFolderModalClassList(
