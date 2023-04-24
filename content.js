@@ -180,21 +180,18 @@ function setupFolderModalClassList(
 	});
 }
 
-// !disabled due to bug (icon disappears when reordering classes)
-// !to enable, ensure that folder_setting_button.html is stated in manifest.json
 function setupFolderIcon() {
 	if (allClasses == null) return;
 
-	fetch(chrome.runtime.getURL("html/folder_setting_button.html"))
+	fetch(chrome.runtime.getURL("html/class_setting_button.html"))
 		.then((response) => response.text())
 		.then((data) => {
-			if (document.getElementById("folder-setting-button") != null)
-				return;
+			if (document.getElementById("class-setting-button") != null) return;
 
 			for (let i = 0; i < allClasses.length; i++) {
 				folderSettingButton = document.createElement("div");
 				folderSettingButton.innerHTML = data;
-				folderSettingButton.setAttribute("id", "folder-setting-button");
+				folderSettingButton.setAttribute("id", "class-setting-button");
 
 				folderSettingButton.addEventListener("click", () => {
 					console.log("Editing Folder: " + allClasses[i]);
@@ -536,10 +533,7 @@ function setup() {
 	// create an observer instance
 	var config = { attributes: true, childList: true, characterData: true };
 	var fileListObserver = new MutationObserver(function (mutations) {
-		fileListObserver.disconnect(); //! remove this to get updates every time the file list changes
-		// todo: Add a flag to ensure the elements are loaded only once
-		// todo: Check the flag then intialize the elements if needed else only update the icons (the edit name and all)
-		console.log("file list changed");
+		fileListObserver.disconnect();
 
 		allClasses = document.getElementsByClassName(classClassName);
 		renderFolders();
@@ -551,7 +545,7 @@ function setup() {
 			isFolderEditable(selectedFolder)
 		);
 
-		setupFolderIcon(); // disabled for now (due to bug when reordering classes)
+		setupFolderIcon();
 	});
 
 	fileListObserver.observe(folderList, config);
