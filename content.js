@@ -10,28 +10,39 @@ classTitleClassName = "YVvGBb z3vRcc-ZoZQ1";
 var loadingClasses = true;
 classesDictionary = {};
 folderSelectedClasses = [];
+// an array of all elements with class classClassName
 allClasses = null;
 
 folderSettingModal = null;
 folderCreationModal = null;
 
+// the current active folder (selected from dropdown)
 selectedFolder = "__All Classes__";
 
+// static folders (cannot be deleted/edited)
 topStaticFolders = { "__All Classes__": "All Classes" };
 bottomStaticFolders = {
 	__Separator__: "──────────",
 	"__Add Folder__": "Add Folder",
 };
-
+// user created folders (can be deleted/edited)
 folders = {};
+
+// classes in each folder
 folderActiveClasses = {};
-loadFolders();
-loadLastSelectedFolder();
+
+__folderName = {
+	601530280843: {
+		name: "Jeff",
+	},
+};
 
 folderList = document.getElementsByClassName(folderListClassName)[0];
 contentWindow = document.getElementsByClassName(contentWindowClassName)[0];
 navigationBar = document.getElementsByClassName(navigationBarClassName)[0];
 
+loadFolders();
+loadLastSelectedFolder();
 setup();
 
 function loadLastSelectedFolder() {
@@ -194,7 +205,9 @@ function setupFolderIcon() {
 				folderSettingButton.setAttribute("id", "class-setting-button");
 
 				folderSettingButton.addEventListener("click", () => {
-					console.log("Editing Folder: " + allClasses[i]);
+					console.log(
+						"Editing Folder: " + allClasses[i].dataset["courseId"]
+					);
 				});
 
 				appendedFolderSettingButton = allClasses[i]
