@@ -188,16 +188,49 @@ function setupFolderIcon() {
 	fetch(chrome.runtime.getURL("html/folder_setting_button.html"))
 		.then((response) => response.text())
 		.then((data) => {
+			if (document.getElementById("folder-setting-button") != null)
+				return;
+
 			for (let i = 0; i < allClasses.length; i++) {
 				folderSettingButton = document.createElement("div");
 				folderSettingButton.innerHTML = data;
 				folderSettingButton.setAttribute("id", "folder-setting-button");
 
-				folderSettingButton.addEventListener("click", () => {});
+				folderSettingButton.addEventListener("click", () => {
+					console.log("Editing Folder: " + allClasses[i]);
+				});
 
-				allClasses[i]
+				appendedFolderSettingButton = allClasses[i]
 					.querySelector(".SZ0kZe") // class = SZ0kZe is the div that contains the 2 icons
 					.appendChild(folderSettingButton);
+
+				folderSettingButtonObserver = new MutationObserver(
+					(mutations) => {
+						mutations.forEach((mutation) => {
+							if (
+								mutation.type === "childList" &&
+								mutation.removedNodes.length > 0
+							) {
+								const removedNodes = Array.from(
+									mutation.removedNodes
+								);
+								if (
+									removedNodes.includes(folderSettingButton)
+								) {
+									folderSettingButtonObserver.disconnect();
+									setupFolderIcon();
+								}
+							}
+						});
+					}
+				);
+
+				folderSettingButtonObserver.observe(
+					appendedFolderSettingButton.parentNode,
+					{
+						childList: true,
+					}
+				);
 			}
 		});
 }
@@ -503,7 +536,7 @@ function setup() {
 	// create an observer instance
 	var config = { attributes: true, childList: true, characterData: true };
 	var fileListObserver = new MutationObserver(function (mutations) {
-		//fileListObserver.disconnect(); //! remove this to get updates every time the file list changes
+		fileListObserver.disconnect(); //! remove this to get updates every time the file list changes
 		// todo: Add a flag to ensure the elements are loaded only once
 		// todo: Check the flag then intialize the elements if needed else only update the icons (the edit name and all)
 		console.log("file list changed");
@@ -517,7 +550,8 @@ function setup() {
 			folderId2ClassIds(selectedFolder),
 			isFolderEditable(selectedFolder)
 		);
-		// setupFolderIcon(); // disabled for now (due to bug when reordering classes)
+
+		setupFolderIcon(); // disabled for now (due to bug when reordering classes)
 	});
 
 	fileListObserver.observe(folderList, config);

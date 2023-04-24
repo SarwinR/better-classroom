@@ -21,7 +21,8 @@
 			"resources": [
 				"/html/folder_creation_modal.html",
 				"/html/dropdown_list.html",
-				"/html/folder_setting_modal.html"
+				"/html/folder_setting_modal.html",
+				"/html/folder_setting_button.html"
 			],
 			"matches": ["<all_urls>"]
 		}
