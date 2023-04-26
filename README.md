@@ -35,7 +35,7 @@ The Better Classroom extension is designed to help users better manage their cla
 
 ## Known Bugs
 
--   [Modal Close button onHover Design Not as Intended](https://github.com/SarwinR/better-classroom/issues/7)
+- [x] [Modal Close button onHover Design Not as Intended](https://github.com/SarwinR/better-classroom/issues/7)
 
 <br>
 
