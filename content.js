@@ -35,7 +35,7 @@ folders = {};
 folderActiveClasses = {};
 
 // Dictionary containing names of all classes whose name has been changed
-__userDefinedClassName = {};
+userDefinedClassName = {};
 
 folderList = document.getElementsByClassName(folderListClassName)[0];
 contentWindow = document.getElementsByClassName(contentWindowClassName)[0];
@@ -67,7 +67,7 @@ function saveClasses() {
 	chrome.runtime.sendMessage(
 		{
 			action: "saveClassData",
-			classData: __userDefinedClassName,
+			classData: userDefinedClassName,
 		},
 		function (response) {
 			//console.log(response);
@@ -77,7 +77,7 @@ function saveClasses() {
 
 function loadClasses() {
 	chrome.runtime.sendMessage({ action: "getClassData" }, function (response) {
-		__userDefinedClassName = response.classData;
+		userDefinedClassName = response.classData;
 		changeClassesName();
 	});
 }
@@ -164,9 +164,9 @@ function setupFolderModalClassList(
 
 	Object.keys(classesDictionary).forEach((k) => {
 		let _className = "";
-		if (__userDefinedClassName[k] != null)
+		if (userDefinedClassName[k] != null)
 			_className =
-				__userDefinedClassName[k] + " (" + classesDictionary[k] + ")";
+				userDefinedClassName[k] + " (" + classesDictionary[k] + ")";
 		else _className = classesDictionary[k];
 
 		if (isEditable)
@@ -309,11 +309,11 @@ function submitNewClassName() {}
 
 function changeClassesName() {
 	for (let i = 0; i < allClasses.length; i++) {
-		if (__userDefinedClassName[allClasses[i].dataset["courseId"]] != null) {
+		if (userDefinedClassName[allClasses[i].dataset["courseId"]] != null) {
 			allClasses[i].getElementsByClassName(
 				classTitleClassName
 			)[0].innerText =
-				__userDefinedClassName[allClasses[i].dataset["courseId"]];
+				userDefinedClassName[allClasses[i].dataset["courseId"]];
 		} else {
 			allClasses[i].getElementsByClassName(
 				classTitleClassName
@@ -346,8 +346,8 @@ function toggleClassSettingModal(status, classID = null) {
 			"class-setting-modal-new-class-name"
 		);
 		alternateClassNameField.value = "";
-		if (__userDefinedClassName[classID] != null) {
-			alternateClassNameField.value = __userDefinedClassName[classID];
+		if (userDefinedClassName[classID] != null) {
+			alternateClassNameField.value = userDefinedClassName[classID];
 		}
 
 		classSettingModal.style.display = "flex";
@@ -361,9 +361,9 @@ function saveClassChanges() {
 		"class-setting-modal-new-class-name"
 	);
 	if (alternateClassNameField.value == "") {
-		delete __userDefinedClassName[editingClassId];
+		delete userDefinedClassName[editingClassId];
 	} else {
-		__userDefinedClassName[editingClassId] = alternateClassNameField.value;
+		userDefinedClassName[editingClassId] = alternateClassNameField.value;
 	}
 
 	saveClasses();
