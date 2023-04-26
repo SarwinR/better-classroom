@@ -15,9 +15,12 @@ allClasses = null;
 
 folderSettingModal = null;
 folderCreationModal = null;
+classSettingModal = null;
 
 // the current active folder (selected from dropdown)
 selectedFolder = "__All Classes__";
+// the current class that is being edited
+editingClassId = null;
 
 // static folders (cannot be deleted/edited)
 topStaticFolders = { "__All Classes__": "All Classes" };
@@ -208,9 +211,11 @@ function setupFolderIcon() {
 				folderSettingButton.setAttribute("id", "class-setting-button");
 
 				folderSettingButton.addEventListener("click", () => {
-					console.log(
-						"Editing Folder: " + allClasses[i].dataset["courseId"]
+					toggleClassSettingModal(
+						true,
+						allClasses[i].dataset["courseId"]
 					);
+					editingClassId = allClasses[i].dataset["courseId"];
 				});
 
 				appendedFolderSettingButton = allClasses[i]
@@ -278,6 +283,8 @@ function renderFolders() {
 	}
 }
 
+function submitNewClassName() {}
+
 function changeClassesName() {
 	for (let i = 0; i < allClasses.length; i++) {
 		if (__userDefinedClassName[allClasses[i].dataset["courseId"]] != null) {
@@ -285,6 +292,11 @@ function changeClassesName() {
 				classTitleClassName
 			)[0].innerText =
 				__userDefinedClassName[allClasses[i].dataset["courseId"]];
+		} else {
+			allClasses[i].getElementsByClassName(
+				classTitleClassName
+			)[0].innerText =
+				classesDictionary[allClasses[i].dataset["courseId"]];
 		}
 	}
 }
@@ -301,6 +313,39 @@ function submitFolderCreationForm() {
 	}
 }
 
+function toggleClassSettingModal(status, classID = null) {
+	if (status) {
+		originalClassNameField = document.getElementById(
+			"class-setting-modal-original-class-name"
+		);
+		originalClassNameField.value = classesDictionary[classID];
+
+		alternateClassNameField = document.getElementById(
+			"class-setting-modal-new-class-name"
+		);
+		alternateClassNameField.value = "";
+		if (__userDefinedClassName[classID] != null) {
+			alternateClassNameField.value = __userDefinedClassName[classID];
+		}
+
+		classSettingModal.style.display = "flex";
+	} else {
+		classSettingModal.style.display = "none";
+	}
+}
+
+function saveClassChanges() {
+	alternateClassNameField = document.getElementById(
+		"class-setting-modal-new-class-name"
+	);
+	if (alternateClassNameField.value == "") {
+		delete __userDefinedClassName[editingClassId];
+	} else {
+		__userDefinedClassName[editingClassId] = alternateClassNameField.value;
+	}
+	changeClassesName();
+}
+
 function toggleFolderCreationModal(status) {
 	if (status) {
 		setupFolderModalClassList("folder-creation-modal-class-select");
@@ -312,7 +357,7 @@ function toggleFolderCreationModal(status) {
 }
 
 // currently oldFolderName, newFolderName, and newFolderClasses
-function saveChanges(folderId, folderName, folderClasses) {
+function saveFolderChanges(folderId, folderName, folderClasses) {
 	delete folderActiveClasses[folderId];
 	delete folders[folderId];
 
@@ -474,6 +519,35 @@ function setup() {
 			});
 		});
 
+	fetch(chrome.runtime.getURL("html/class_setting_modal.html"))
+		.then((response) => response.text())
+		.then((data) => {
+			classSettingModal = document.createElement("div");
+			classSettingModal.innerHTML = data;
+			document.body.appendChild(classSettingModal);
+
+			classSettingModal = document.getElementById("class-setting-modal");
+
+			toggleClassSettingModal(false);
+
+			// setup close button
+			folderCreationCloseButton = document.getElementById(
+				"class-setting-modal-modal-close"
+			);
+			folderCreationCloseButton.addEventListener("click", () => {
+				toggleClassSettingModal(false);
+			});
+
+			// setup submit button
+			folderCreationSubmitButton = document.getElementById(
+				"class-setting-modal-modal-submit"
+			);
+			folderCreationSubmitButton.addEventListener("click", () => {
+				saveClassChanges();
+				toggleClassSettingModal(false);
+			});
+		});
+
 	fetch(chrome.runtime.getURL("html/dropdown_list.html"))
 		.then((response) => response.text())
 		.then((data) => {
@@ -550,7 +624,7 @@ function setup() {
 					"folder-setting-modal-folder-name"
 				);
 				if (validateFolderName(nameInputField.value, true)) {
-					saveChanges(
+					saveFolderChanges(
 						selectedFolder,
 						nameInputField.value,
 						folderSelectedClasses
