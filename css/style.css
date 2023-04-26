@@ -125,6 +125,7 @@
 	position: absolute;
 	top: 12px;
 	right: 12px;
+	height: 36px;
 }
 
 #folder-creation-modal-modal-submit {
@@ -228,6 +229,7 @@
 	position: absolute;
 	top: 12px;
 	right: 12px;
+	height: 36px;
 }
 
 #folder-setting-modal-modal-delete {
@@ -358,6 +360,7 @@
 	position: absolute;
 	top: 12px;
 	right: 12px;
+	height: 36px;
 }
 
 #class-setting-modal-modal-submit {
