@@ -35,13 +35,7 @@ folders = {};
 folderActiveClasses = {};
 
 // Dictionary containing names of all classes whose name has been changed
-__userDefinedClassName = {
-	601530280843: "Test Name 000",
-	601530206270: "Test Name 001",
-	601530689816: "Test Name 002",
-	601530459194: "Test Name 003",
-	601529687040: "Test Name 004",
-};
+__userDefinedClassName = {};
 
 folderList = document.getElementsByClassName(folderListClassName)[0];
 contentWindow = document.getElementsByClassName(contentWindowClassName)[0];
@@ -69,28 +63,50 @@ function saveLastSelectedFolder() {
 	});
 }
 
+function saveClasses() {
+	chrome.runtime.sendMessage(
+		{
+			action: "saveClassData",
+			classData: __userDefinedClassName,
+		},
+		function (response) {
+			//console.log(response);
+		}
+	);
+}
+
+function loadClasses() {
+	chrome.runtime.sendMessage({ action: "getClassData" }, function (response) {
+		__userDefinedClassName = response.classData;
+		changeClassesName();
+	});
+}
+
 function saveFolders() {
 	// save folders to chrome storage and output to console
 	chrome.runtime.sendMessage(
 		{
-			action: "saveData",
+			action: "saveFolderData",
 			folderData: {
 				folders: folders,
 				folderActiveClasses: folderActiveClasses,
 			},
 		},
 		function (response) {
-			console.log(response);
+			//console.log(response);
 		}
 	);
 }
 
 function loadFolders() {
-	chrome.runtime.sendMessage({ action: "getData" }, function (response) {
-		folders = response.folderData.folders;
-		folderActiveClasses = response.folderData.folderActiveClasses;
-		renderFolderDropdown();
-	});
+	chrome.runtime.sendMessage(
+		{ action: "getFolderData" },
+		function (response) {
+			folders = response.folderData.folders;
+			folderActiveClasses = response.folderData.folderActiveClasses;
+			renderFolderDropdown();
+		}
+	);
 }
 
 function renderFolderDropdown() {
@@ -251,7 +267,7 @@ function setupFolderIcon() {
 				);
 			}
 
-			changeClassesName();
+			loadClasses();
 		});
 }
 
@@ -343,6 +359,8 @@ function saveClassChanges() {
 	} else {
 		__userDefinedClassName[editingClassId] = alternateClassNameField.value;
 	}
+
+	saveClasses();
 	changeClassesName();
 }
 
