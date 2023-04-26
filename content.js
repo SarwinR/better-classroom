@@ -163,10 +163,16 @@ function setupFolderModalClassList(
 	}
 
 	Object.keys(classesDictionary).forEach((k) => {
+		let _className = "";
+		if (__userDefinedClassName[k] != null)
+			_className =
+				__userDefinedClassName[k] + " (" + classesDictionary[k] + ")";
+		else _className = classesDictionary[k];
+
 		if (isEditable)
-			classSelectionList.innerHTML += `<option class="class-option" value="${k}">${classesDictionary[k]}</option>`;
+			classSelectionList.innerHTML += `<option class="class-option" value="${k}">${_className}</option>`;
 		else
-			classSelectionList.innerHTML += `<option class="class-option" value="${k}" disabled>${classesDictionary[k]}</option>`;
+			classSelectionList.innerHTML += `<option class="class-option" value="${k}" disabled>${_className}</option>`;
 	});
 
 	// activate all classes in activeClasses
