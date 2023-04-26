@@ -125,6 +125,7 @@
 	position: absolute;
 	top: 12px;
 	right: 12px;
+	height: 36px;
 }
 
 #folder-creation-modal-modal-submit {
@@ -152,11 +153,6 @@
 	font-size: 20px;
 	font-weight: 500;
 	color: #202124;
-}
-
-#folder-creation-modal-modal-close {
-	width: 36px;
-	height: 36px;
 }
 
 /* Form styles */
@@ -233,6 +229,7 @@
 	position: absolute;
 	top: 12px;
 	right: 12px;
+	height: 36px;
 }
 
 #folder-setting-modal-modal-delete {
@@ -363,6 +360,7 @@
 	position: absolute;
 	top: 12px;
 	right: 12px;
+	height: 36px;
 }
 
 #class-setting-modal-modal-submit {
