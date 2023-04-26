@@ -154,6 +154,11 @@
 	color: #202124;
 }
 
+#folder-creation-modal-modal-close {
+	width: 36px;
+	height: 36px;
+}
+
 /* Form styles */
 .folder-creation-form {
 	display: flex;
