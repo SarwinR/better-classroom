@@ -8,30 +8,41 @@ classClassName = "gHz6xd Aopndd rZXyy";
 classTitleClassName = "YVvGBb z3vRcc-ZoZQ1";
 
 var loadingClasses = true;
-classesDictionary = {};
+classesDictionary = {}; // classID: className
 folderSelectedClasses = [];
+// an array of all elements with class classClassName
 allClasses = null;
 
 folderSettingModal = null;
 folderCreationModal = null;
+classSettingModal = null;
 
+// the current active folder (selected from dropdown)
 selectedFolder = "__All Classes__";
+// the current class that is being edited
+editingClassId = null;
 
+// static folders (cannot be deleted/edited)
 topStaticFolders = { "__All Classes__": "All Classes" };
 bottomStaticFolders = {
 	__Separator__: "──────────",
 	"__Add Folder__": "Add Folder",
 };
-
+// user created folders (can be deleted/edited)
 folders = {};
+
+// classes in each folder
 folderActiveClasses = {};
-loadFolders();
-loadLastSelectedFolder();
+
+// Dictionary containing names of all classes whose name has been changed
+__userDefinedClassName = {};
 
 folderList = document.getElementsByClassName(folderListClassName)[0];
 contentWindow = document.getElementsByClassName(contentWindowClassName)[0];
 navigationBar = document.getElementsByClassName(navigationBarClassName)[0];
 
+loadFolders();
+loadLastSelectedFolder();
 setup();
 
 function loadLastSelectedFolder() {
@@ -52,28 +63,50 @@ function saveLastSelectedFolder() {
 	});
 }
 
+function saveClasses() {
+	chrome.runtime.sendMessage(
+		{
+			action: "saveClassData",
+			classData: __userDefinedClassName,
+		},
+		function (response) {
+			//console.log(response);
+		}
+	);
+}
+
+function loadClasses() {
+	chrome.runtime.sendMessage({ action: "getClassData" }, function (response) {
+		__userDefinedClassName = response.classData;
+		changeClassesName();
+	});
+}
+
 function saveFolders() {
 	// save folders to chrome storage and output to console
 	chrome.runtime.sendMessage(
 		{
-			action: "saveData",
+			action: "saveFolderData",
 			folderData: {
 				folders: folders,
 				folderActiveClasses: folderActiveClasses,
 			},
 		},
 		function (response) {
-			console.log(response);
+			//console.log(response);
 		}
 	);
 }
 
 function loadFolders() {
-	chrome.runtime.sendMessage({ action: "getData" }, function (response) {
-		folders = response.folderData.folders;
-		folderActiveClasses = response.folderData.folderActiveClasses;
-		renderFolderDropdown();
-	});
+	chrome.runtime.sendMessage(
+		{ action: "getFolderData" },
+		function (response) {
+			folders = response.folderData.folders;
+			folderActiveClasses = response.folderData.folderActiveClasses;
+			renderFolderDropdown();
+		}
+	);
 }
 
 function renderFolderDropdown() {
@@ -130,10 +163,16 @@ function setupFolderModalClassList(
 	}
 
 	Object.keys(classesDictionary).forEach((k) => {
+		let _className = "";
+		if (__userDefinedClassName[k] != null)
+			_className =
+				__userDefinedClassName[k] + " (" + classesDictionary[k] + ")";
+		else _className = classesDictionary[k];
+
 		if (isEditable)
-			classSelectionList.innerHTML += `<option class="class-option" value="${k}">${classesDictionary[k]}</option>`;
+			classSelectionList.innerHTML += `<option class="class-option" value="${k}">${_className}</option>`;
 		else
-			classSelectionList.innerHTML += `<option class="class-option" value="${k}" disabled>${classesDictionary[k]}</option>`;
+			classSelectionList.innerHTML += `<option class="class-option" value="${k}" disabled>${_className}</option>`;
 	});
 
 	// activate all classes in activeClasses
@@ -180,25 +219,61 @@ function setupFolderModalClassList(
 	});
 }
 
-// !disabled due to bug (icon disappears when reordering classes)
-// !to enable, ensure that folder_setting_button.html is stated in manifest.json
 function setupFolderIcon() {
 	if (allClasses == null) return;
 
-	fetch(chrome.runtime.getURL("html/folder_setting_button.html"))
+	fetch(chrome.runtime.getURL("html/class_setting_button.html"))
 		.then((response) => response.text())
 		.then((data) => {
+			if (document.getElementById("class-setting-button") != null) return;
+
 			for (let i = 0; i < allClasses.length; i++) {
 				folderSettingButton = document.createElement("div");
 				folderSettingButton.innerHTML = data;
-				folderSettingButton.setAttribute("id", "folder-setting-button");
+				folderSettingButton.setAttribute("id", "class-setting-button");
 
-				folderSettingButton.addEventListener("click", () => {});
+				folderSettingButton.addEventListener("click", () => {
+					toggleClassSettingModal(
+						true,
+						allClasses[i].dataset["courseId"]
+					);
+					editingClassId = allClasses[i].dataset["courseId"];
+				});
 
-				allClasses[i]
+				appendedFolderSettingButton = allClasses[i]
 					.querySelector(".SZ0kZe") // class = SZ0kZe is the div that contains the 2 icons
 					.appendChild(folderSettingButton);
+
+				folderSettingButtonObserver = new MutationObserver(
+					(mutations) => {
+						mutations.forEach((mutation) => {
+							if (
+								mutation.type === "childList" &&
+								mutation.removedNodes.length > 0
+							) {
+								const removedNodes = Array.from(
+									mutation.removedNodes
+								);
+								if (
+									removedNodes.includes(folderSettingButton)
+								) {
+									folderSettingButtonObserver.disconnect();
+									setupFolderIcon();
+								}
+							}
+						});
+					}
+				);
+
+				folderSettingButtonObserver.observe(
+					appendedFolderSettingButton.parentNode,
+					{
+						childList: true,
+					}
+				);
 			}
+
+			loadClasses();
 		});
 }
 
@@ -217,6 +292,7 @@ function renderFolders() {
 
 		_folderActiveClasses = folderActiveClasses[selectedFolder] || [];
 
+		// if class is in active folder or no folder is selected, show class
 		if (
 			_folderActiveClasses.includes(allClasses[i].dataset["courseId"]) ||
 			selectedFolder == null ||
@@ -225,6 +301,24 @@ function renderFolders() {
 			allClasses[i].style.display = "flex";
 		} else {
 			allClasses[i].style.display = "none";
+		}
+	}
+}
+
+function submitNewClassName() {}
+
+function changeClassesName() {
+	for (let i = 0; i < allClasses.length; i++) {
+		if (__userDefinedClassName[allClasses[i].dataset["courseId"]] != null) {
+			allClasses[i].getElementsByClassName(
+				classTitleClassName
+			)[0].innerText =
+				__userDefinedClassName[allClasses[i].dataset["courseId"]];
+		} else {
+			allClasses[i].getElementsByClassName(
+				classTitleClassName
+			)[0].innerText =
+				classesDictionary[allClasses[i].dataset["courseId"]];
 		}
 	}
 }
@@ -241,6 +335,41 @@ function submitFolderCreationForm() {
 	}
 }
 
+function toggleClassSettingModal(status, classID = null) {
+	if (status) {
+		originalClassNameField = document.getElementById(
+			"class-setting-modal-original-class-name"
+		);
+		originalClassNameField.value = classesDictionary[classID];
+
+		alternateClassNameField = document.getElementById(
+			"class-setting-modal-new-class-name"
+		);
+		alternateClassNameField.value = "";
+		if (__userDefinedClassName[classID] != null) {
+			alternateClassNameField.value = __userDefinedClassName[classID];
+		}
+
+		classSettingModal.style.display = "flex";
+	} else {
+		classSettingModal.style.display = "none";
+	}
+}
+
+function saveClassChanges() {
+	alternateClassNameField = document.getElementById(
+		"class-setting-modal-new-class-name"
+	);
+	if (alternateClassNameField.value == "") {
+		delete __userDefinedClassName[editingClassId];
+	} else {
+		__userDefinedClassName[editingClassId] = alternateClassNameField.value;
+	}
+
+	saveClasses();
+	changeClassesName();
+}
+
 function toggleFolderCreationModal(status) {
 	if (status) {
 		setupFolderModalClassList("folder-creation-modal-class-select");
@@ -252,7 +381,7 @@ function toggleFolderCreationModal(status) {
 }
 
 // currently oldFolderName, newFolderName, and newFolderClasses
-function saveChanges(folderId, folderName, folderClasses) {
+function saveFolderChanges(folderId, folderName, folderClasses) {
 	delete folderActiveClasses[folderId];
 	delete folders[folderId];
 
@@ -414,6 +543,35 @@ function setup() {
 			});
 		});
 
+	fetch(chrome.runtime.getURL("html/class_setting_modal.html"))
+		.then((response) => response.text())
+		.then((data) => {
+			classSettingModal = document.createElement("div");
+			classSettingModal.innerHTML = data;
+			document.body.appendChild(classSettingModal);
+
+			classSettingModal = document.getElementById("class-setting-modal");
+
+			toggleClassSettingModal(false);
+
+			// setup close button
+			folderCreationCloseButton = document.getElementById(
+				"class-setting-modal-modal-close"
+			);
+			folderCreationCloseButton.addEventListener("click", () => {
+				toggleClassSettingModal(false);
+			});
+
+			// setup submit button
+			folderCreationSubmitButton = document.getElementById(
+				"class-setting-modal-modal-submit"
+			);
+			folderCreationSubmitButton.addEventListener("click", () => {
+				saveClassChanges();
+				toggleClassSettingModal(false);
+			});
+		});
+
 	fetch(chrome.runtime.getURL("html/dropdown_list.html"))
 		.then((response) => response.text())
 		.then((data) => {
@@ -490,7 +648,7 @@ function setup() {
 					"folder-setting-modal-folder-name"
 				);
 				if (validateFolderName(nameInputField.value, true)) {
-					saveChanges(
+					saveFolderChanges(
 						selectedFolder,
 						nameInputField.value,
 						folderSelectedClasses
@@ -504,8 +662,10 @@ function setup() {
 	var config = { attributes: true, childList: true, characterData: true };
 	var fileListObserver = new MutationObserver(function (mutations) {
 		fileListObserver.disconnect();
+
 		allClasses = document.getElementsByClassName(classClassName);
 		renderFolders();
+		changeClassesName();
 		loadingClasses = false;
 		setupFolderModalClassList("folder-creation-modal-class-select");
 		setupFolderModalClassList(
@@ -513,7 +673,8 @@ function setup() {
 			folderId2ClassIds(selectedFolder),
 			isFolderEditable(selectedFolder)
 		);
-		// setupFolderIcon(); // disabled for now (due to bug when reordering classes)
+
+		setupFolderIcon();
 	});
 
 	fileListObserver.observe(folderList, config);

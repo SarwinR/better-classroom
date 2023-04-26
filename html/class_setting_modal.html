@@ -1,0 +1,54 @@
+<div id="class-setting-modal">
+	<div id="modal-form">
+		<div class="class-setting-modal-title-bar">
+			<h2 class="class-setting-modal-title">Class Settings</h2>
+			<button id="class-setting-modal-modal-close">
+				<?xml version="1.0" encoding="utf-8"?>
+				<svg
+					width="20px"
+					height="20px"
+					viewBox="0 0 24 24"
+					fill="none"
+					xmlns="http://www.w3.org/2000/svg"
+				>
+					<g id="Menu / Close_MD">
+						<path
+							id="Vector"
+							d="M18 18L12 12M12 12L6 6M12 12L18 6M12 12L6 18"
+							stroke="#000000"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						/>
+					</g>
+				</svg>
+			</button>
+		</div>
+		<form class="class-setting-form">
+			<label class="label" for="class-setting-modal-original-class-name"
+				>Original Class Name (Uneditable)</label
+			>
+			<input
+				class="class-setting-input"
+				type="text"
+				id="class-setting-modal-original-class-name"
+				name="original-class-name"
+				disabled
+			/>
+			<label class="label" for="class-setting-modal-new-class-name"
+				>Alternate Class Name</label
+			>
+			<input
+				class="class-setting-input"
+				type="text"
+				id="class-setting-modal-new-class-name"
+				name="new-class-name"
+			/>
+		</form>
+
+		<button id="class-setting-modal-modal-submit">Save Changes</button>
+	</div>
+
+	<!-- The dimmed background -->
+	<div id="modal-overlay"></div>
+</div>
