@@ -36,13 +36,7 @@ The Better Classroom extension is designed to help users better manage their cla
 ## Known Bugs
 
 - [x] [Modal Close button onHover Design Not as Intended](https://github.com/SarwinR/better-classroom/issues/7)
-
-<br>
-
-## Upcoming Features
-
-- [Handling of multiple Google Classroom Accounts](https://github.com/SarwinR/better-classroom/issues/11)
-- [Ability to modify classes' details](https://github.com/SarwinR/better-classroom/issues/10)
+- [x] [Extension causes account selector and product button to break](https://github.com/SarwinR/better-classroom/issues/15)
 
 
 <br>
