@@ -7,6 +7,7 @@ inContentWindowNavigationBarClassName = "xgkURe mhCMAe";
 classClassName = "gHz6xd Aopndd rZXyy";
 classTitleClassName = "YVvGBb z3vRcc-ZoZQ1";
 
+var unable2FindClass = false;
 var loadingClasses = true;
 classesDictionary = {}; // classID: className
 folderSelectedClasses = [];
@@ -36,6 +37,9 @@ folderActiveClasses = {};
 
 // Dictionary containing names of all classes whose name has been changed
 userDefinedClassName = {};
+
+var unable2FindClassMessage =
+	'Unable to load classes. Please go to <a href="https://classroom.google.com/">Google Classroom Homepage</a> and refresh the page.';
 
 folderList = document.getElementsByClassName(folderListClassName)[0];
 contentWindow = document.getElementsByClassName(contentWindowClassName)[0];
@@ -155,6 +159,18 @@ function setupFolderModalClassList(
 
 	if (loadingClasses) {
 		classSelectionList.innerHTML = `<option class="class-option" disabled>Loading Class List . . .</option>`;
+		return;
+	}
+	if (unable2FindClass) {
+		classSelectionList.innerHTML = `<option class="class-option" disabled>An Error Occurred</option>`;
+
+		classModalErrorText = document.getElementsByClassName(
+			"folder-modal-error-msg"
+		);
+
+		classModalErrorText[0].innerHTML = unable2FindClassMessage;
+		classModalErrorText[1].innerHTML = unable2FindClassMessage;
+
 		return;
 	}
 	if (allClasses == null) {
@@ -677,5 +693,15 @@ function setup() {
 		setupFolderIcon();
 	});
 
-	fileListObserver.observe(folderList, config);
+	if (!folderList) {
+		// Google Classroom is not is not on homepage/was not loaded form homepage
+		// TODO add observer to detect when Google Classroom homepage is loaded
+		// console.log("Google Classroom is not on homepage");
+
+		unable2FindClass = true;
+		loadingClasses = false;
+	} else {
+		// console.log("Google Classroom is on homepage");
+		fileListObserver.observe(folderList, config);
+	}
 }

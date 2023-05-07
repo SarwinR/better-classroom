@@ -307,6 +307,11 @@
 /* START:SHARED STYLES FOR  FOLDER CREATION MODAL & FOLDER SETTING MODAL */
 /* ------------------------------ */
 
+.folder-modal-error-msg {
+	color: #db4437;
+	font-size: 14px;
+}
+
 .label {
 	margin-bottom: 8px;
 	font-weight: 500;
