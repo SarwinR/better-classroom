@@ -37,6 +37,8 @@ The Better Classroom extension is designed to help users better manage their cla
 
 - [x] [Modal Close button onHover Design Not as Intended](https://github.com/SarwinR/better-classroom/issues/7)
 - [x] [Extension causes account selector and product button to break](https://github.com/SarwinR/better-classroom/issues/15)
+- [x] [No validation when editing folder name](https://github.com/SarwinR/better-classroom/issues/17)
+- [x] [No Proper error message to notify user when no classes are found while creating/editing folder](https://github.com/SarwinR/better-classroom/issues/12)
 
 
 <br>
