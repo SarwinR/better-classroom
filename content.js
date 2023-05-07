@@ -490,9 +490,17 @@ function validateFolderName(name, isEdit = false) {
 		alert("Folder name cannot be empty");
 		return false;
 	}
-	if (name in folders && isEdit == false) {
-		alert("Folder already exists");
-		return false;
+
+	if (isEdit == false) {
+		if (name in folders) {
+			alert("Folder already exists");
+			return false;
+		}
+	} else {
+		if (name in folders && name != selectedFolder) {
+			alert("Folder already exists");
+			return false;
+		}
 	}
 
 	return true;
