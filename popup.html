@@ -1,78 +1,124 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Better Classroom</title>
-	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
-	<style>
-		body {
-			background-color: #f6f6f6;
-			font-family: 'Roboto', Arial, sans-serif;
-			margin: 0;
-			padding: 0;
-		}
-		.container {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: center;
-			width: 250px;
-			height: 300px;
-			margin: 0 auto;
-			padding: 10px;
-		}
-		h1 {
-			color: #202124;
-			font-size: 24px;
-			margin: 0 0 12px;
-		}
-		p {
-			text-align: center;
-			color: #5f6368;
-			font-size: 14px;
-			margin: 0 0 24px;
-		}
-		a {
-			display: inline-block;
-			padding: 8px 16px;
-			border-radius: 4px;
-			font-size: 12px;
-			text-decoration: none;
-			color: #202124;
-			background-color: #fbbc04;
-			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.16);
-			transition: background-color 0.3s, box-shadow 0.3s;
-		}
-		a:hover {
-			background-color: #ffac33;
-			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
-		}
-		.buy-a-coffee {
-			display: flex;
-			align-items: center;
-			margin-top: 12px;
-		}
-		.buy-a-coffee span {
-			margin-right: 8px;
-		}
-		.version {
-			font-size: 10px;
-			margin-top: 24px;
-			color: #5f6368;
-		}
-	</style>
-	<script src="popup.js"></script>
-</head>
-<body>
-	<div class="container">
-		<h1>Better Classroom</h1>
-		<p>An extension that allows you to create folders in Google Classroom to better organize your classes.</p>
-		<a class="other-links" href="https://github.com/SarwinR/better-classroom/issues" target="_blank">Report an Issue</a>
-		<a class="buy-a-coffee" href="https://www.buymeacoffee.com/sarwinr" target="_blank">
-			<span>Buy Me A Coffee</span>
-		</a>
-		<div class="version" id="version">Version: 0.0.0</div>
-	</div>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Better Classroom</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+    />
+    <style>
+      body {
+        background-color: #f6f6f6;
+        font-family: "Roboto", Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 300px;
+        height: 100vh;
+        margin: 0 auto;
+        padding: 0 24px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        background-color: #ffffff;
+        border-radius: 8px;
+      }
+      h1 {
+        color: #202124;
+        font-size: 28px;
+      }
+      h2 {
+        color: #202124;
+        font-size: 20px;
+        margin: 15px 0 2px;
+        width: 100%;
+        text-align: left;
+      }
+      p {
+        text-align: center;
+        color: #5f6368;
+        font-size: 16px;
+        margin: 0 0 24px;
+      }
+      a,
+      button {
+        display: inline-block;
+        padding: 10px 20px;
+        border-radius: 4px;
+        font-size: 14px;
+        text-decoration: none;
+        color: #ffffff;
+        background-color: #4285f4;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.16);
+        transition: background-color 0.3s, box-shadow 0.3s;
+        margin: 8px 0;
+        text-align: center;
+        width: 80%;
+        border: none;
+      }
+      a:hover,
+      button:hover {
+        background-color: #357ae8;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
+      }
+      button:focus {
+        outline: none;
+      }
+      .version {
+        font-size: 12px;
+        margin-top: 24px;
+        color: #5f6368;
+      }
+    </style>
+    <script src="popup.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Better Classroom</h1>
+
+      <h2>Support Me</h2>
+      <a
+        class="buy-a-coffee"
+        href="https://www.buymeacoffee.com/sarwinr"
+        target="_blank"
+      >
+        <span>Buy Me A Coffee</span>
+      </a>
+      <a
+        class="buy-a-coffee"
+        href="https://github.com/sponsors/SarwinR"
+        target="_blank"
+      >
+        <span>Sponsor Me on GitHub</span>
+      </a>
+
+      <h2>Feedback</h2>
+      <a
+        class="other-links"
+        href="https://github.com/SarwinR/better-classroom/issues"
+        target="_blank"
+      >
+        Report an Issue
+      </a>
+
+      <h2>Settings</h2>
+      
+      <button id="export-folders-button">Export Folders</button>
+      
+      <button id="import-folders-button">
+        Import Folders
+        <br />
+        <span>(It will overwrite all your current folders)<span>
+        </button>
+        
+        <p id="setting-message"></p>
+
+      <div class="version" id="version">Version: 0.0.0</div>
+    </div>
+  </body>
 </html>
