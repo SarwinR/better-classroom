@@ -8,8 +8,8 @@ The Better Classroom extension is designed to help users better manage their cla
 
 ## Main Features
 
--   Ability to create folders within Google Classroom
--   Ability to rename classes
+- Ability to create folders within Google Classroom
+- Ability to rename classes
 
 <br>
 
@@ -26,26 +26,3 @@ The Better Classroom extension is designed to help users better manage their cla
 3. [Check the guide on how to install an unpacked extension](https://developer.chrome.com/docs/extensions/mv3/getstarted/development-basics/#load-unpacked).
 
 <br>
-
-## Bug Fixes / New Features
-
-- [x] [Modal Close button onHover Design Not as Intended](https://github.com/SarwinR/better-classroom/issues/7)
-- [x] [Extension causes account selector and product button to break](https://github.com/SarwinR/better-classroom/issues/15)
-- [x] [No validation when editing folder name](https://github.com/SarwinR/better-classroom/issues/17)
-- [x] [No Proper error message to notify user when no classes are found while creating/editing folder](https://github.com/SarwinR/better-classroom/issues/12)
-
-
-<br>
-
-## Known Bugs
-
-- [ ] Bugs are currently on vacation. 🐛🧳✈️
-
-<br>
-
-## Browser Support
-
-| Browser         | Status                                                                    |
-| --------------- | ------------------------------------------------------------------------- |
-| Chromium Based  | <img src="https://img.shields.io/badge/Status-Fully%20Functional-g.svg"/> |
-| Mozilla Firefox | <img src="https://img.shields.io/badge/Status-Needs%20Porting-red.svg"/>  |
