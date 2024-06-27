@@ -23,7 +23,7 @@
         width: 300px;
         height: 100vh;
         margin: 0 auto;
-        padding: 20px;
+        padding: 0 24px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         background-color: #ffffff;
         border-radius: 8px;
@@ -31,13 +31,11 @@
       h1 {
         color: #202124;
         font-size: 28px;
-        margin: 0 0 16px;
       }
       h2 {
         color: #202124;
         font-size: 20px;
-        margin: 24px 0 12px;
-        border-bottom: 2px solid #fbbc04;
+        margin: 15px 0 2px;
         width: 100%;
         text-align: left;
       }
@@ -60,7 +58,7 @@
         transition: background-color 0.3s, box-shadow 0.3s;
         margin: 8px 0;
         text-align: center;
-        width: 100%;
+        width: 80%;
         border: none;
       }
       a:hover,
@@ -109,11 +107,16 @@
       </a>
 
       <h2>Settings</h2>
-      <p id="setting-message"></p>
-
+      
       <button id="export-folders-button">Export Folders</button>
-
-      <button id="import-folders-button">Import Folders</button>
+      
+      <button id="import-folders-button">
+        Import Folders
+        <br />
+        <span>(It will overwrite all your current folders)<span>
+        </button>
+        
+        <p id="setting-message"></p>
 
       <div class="version" id="version">Version: 0.0.0</div>
     </div>
