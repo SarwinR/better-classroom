@@ -20,47 +20,59 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        width: 250px;
-        height: 300px;
+        width: 300px;
+        height: 100vh;
         margin: 0 auto;
-        padding: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        background-color: #ffffff;
+        border-radius: 8px;
       }
       h1 {
         color: #202124;
-        font-size: 24px;
-        margin: 0 0 12px;
+        font-size: 28px;
+        margin: 0 0 16px;
+      }
+      h2 {
+        color: #202124;
+        font-size: 20px;
+        margin: 24px 0 12px;
+        border-bottom: 2px solid #fbbc04;
+        width: 100%;
+        text-align: left;
       }
       p {
         text-align: center;
         color: #5f6368;
-        font-size: 14px;
+        font-size: 16px;
         margin: 0 0 24px;
       }
-      a {
+      a,
+      button {
         display: inline-block;
-        padding: 8px 16px;
+        padding: 10px 20px;
         border-radius: 4px;
-        font-size: 12px;
+        font-size: 14px;
         text-decoration: none;
-        color: #202124;
-        background-color: #fbbc04;
+        color: #ffffff;
+        background-color: #4285f4;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.16);
         transition: background-color 0.3s, box-shadow 0.3s;
+        margin: 8px 0;
+        text-align: center;
+        width: 100%;
+        border: none;
       }
-      a:hover {
-        background-color: #ffac33;
+      a:hover,
+      button:hover {
+        background-color: #357ae8;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
       }
-      .buy-a-coffee {
-        display: flex;
-        align-items: center;
-        margin-top: 12px;
-      }
-      .buy-a-coffee span {
-        margin-right: 8px;
+      button:focus {
+        outline: none;
       }
       .version {
-        font-size: 10px;
+        font-size: 12px;
         margin-top: 24px;
         color: #5f6368;
       }
@@ -70,16 +82,8 @@
   <body>
     <div class="container">
       <h1>Better Classroom</h1>
-      <p>
-        An extension that allows you to create folders in Google Classroom to
-        better organize your classes.
-      </p>
-      <a
-        class="other-links"
-        href="https://github.com/SarwinR/better-classroom/issues"
-        target="_blank"
-        >Report an Issue</a
-      >
+
+      <h2>Support Me</h2>
       <a
         class="buy-a-coffee"
         href="https://www.buymeacoffee.com/sarwinr"
@@ -87,8 +91,26 @@
       >
         <span>Buy Me A Coffee</span>
       </a>
+      <a
+        class="buy-a-coffee"
+        href="https://github.com/sponsors/SarwinR"
+        target="_blank"
+      >
+        <span>Sponsor Me on GitHub</span>
+      </a>
+
+      <h2>Feedback</h2>
+      <a
+        class="other-links"
+        href="https://github.com/SarwinR/better-classroom/issues"
+        target="_blank"
+      >
+        Report an Issue
+      </a>
 
       <h2>Settings</h2>
+      <p id="setting-message"></p>
+
       <button id="export-folders-button">Export Folders</button>
 
       <button id="import-folders-button">Import Folders</button>
