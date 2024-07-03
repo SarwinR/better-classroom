@@ -11,7 +11,7 @@ The Better Classroom extension is designed to help users better manage their cla
 
 ### From Extension Stores (Recommended)
 
-<a href="https://microsoftedge.microsoft.com/addons/detail/ofjjjjceeenagpnglijjmhbjlgidhiml" target="_blank"><img src="https://img.shields.io/badge/Edge%20Add%20Ons-v1.1.4-g.svg"/></a> <a target="_blank" href="https://chrome.google.com/webstore/detail/better-classroom/maibneeahfkanhakkogkbcakcadjejkl"><img src="https://img.shields.io/badge/Chrome%20Web%20Store-v1.1.4-g.svg"/></a>
+<a href="https://microsoftedge.microsoft.com/addons/detail/ofjjjjceeenagpnglijjmhbjlgidhiml" target="_blank"><img src="https://img.shields.io/badge/Edge%20Add%20Ons-v1.1.4.1-g.svg"/></a> <a target="_blank" href="https://chrome.google.com/webstore/detail/better-classroom/maibneeahfkanhakkogkbcakcadjejkl"><img src="https://img.shields.io/badge/Chrome%20Web%20Store-v1.1.4-g.svg"/></a>
 
 ### From GitHub
 
