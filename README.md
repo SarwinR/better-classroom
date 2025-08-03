@@ -1,4 +1,4 @@
-# Better Classroom v1.1.4
+# Better Classroom v1.1.5
 <div style="text-align:center">
   <img src="https://github.com/SarwinR/better-classroom/assets/64829298/4d1ed8c4-d2f7-4215-b383-d8b8f9bed3db" style="width:100%;" alt="Better Classroom"/>
 </div>
@@ -11,7 +11,7 @@ The Better Classroom extension is designed to help users better manage their cla
 
 ### From Extension Stores (Recommended)
 
-<a href="https://microsoftedge.microsoft.com/addons/detail/ofjjjjceeenagpnglijjmhbjlgidhiml" target="_blank"><img src="https://img.shields.io/badge/Edge%20Add%20Ons-v1.1.4.1-g.svg"/></a> <a target="_blank" href="https://chrome.google.com/webstore/detail/better-classroom/maibneeahfkanhakkogkbcakcadjejkl"><img src="https://img.shields.io/badge/Chrome%20Web%20Store-v1.1.4-g.svg"/></a>
+<a href="https://microsoftedge.microsoft.com/addons/detail/ofjjjjceeenagpnglijjmhbjlgidhiml" target="_blank"><img src="https://img.shields.io/badge/Edge%20Add%20Ons-v1.1.5-g.svg"/></a> <a target="_blank" href="https://chrome.google.com/webstore/detail/better-classroom/maibneeahfkanhakkogkbcakcadjejkl"><img src="https://img.shields.io/badge/Chrome%20Web%20Store-v1.1.5-g.svg"/></a>
 
 ### From GitHub
 
