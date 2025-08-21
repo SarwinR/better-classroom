@@ -4,7 +4,7 @@ folderListClassName = "JwPp0e";
 contentWindowClassName = "kFwPee";
 inContentWindowNavigationBarClassName = "xgkURe mhCMAe";
 
-classClassName = "gHz6xd Aopndd rZXyy";
+classClassName = "gHz6xd riU7le rZXyy";
 classTitleClassName = "ScpeUc Vu2fZd z3vRcc-ZoZQ1";
 
 var unable2FindClass = false;
