@@ -5,7 +5,7 @@ contentWindowClassName = "kFwPee";
 inContentWindowNavigationBarClassName = "xgkURe mhCMAe";
 
 classClassName = "gHz6xd riU7le rZXyy";
-classTitleClassName = "ScpeUc Vu2fZd z3vRcc-ZoZQ1";
+classTitleClassName = "ScpeUc Vu2fZd XwD7Ke";
 
 var unable2FindClass = false;
 var loadingClasses = true;
