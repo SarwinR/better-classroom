@@ -1,4 +1,4 @@
-# Better Classroom v1.1.5
+# Better Classroom v1.1.6
 <div style="text-align:center">
   <img src="https://github.com/SarwinR/better-classroom/assets/64829298/4d1ed8c4-d2f7-4215-b383-d8b8f9bed3db" style="width:100%;" alt="Better Classroom"/>
 </div>
