@@ -18,3 +18,14 @@ The Better Classroom extension is designed to help users better manage their cla
 1. Download the Source Code (zip) from [Releases](https://github.com/SarwinR/better-classroom/releases).
 2. Extract the zip file.
 3. [Check the guide on how to install an unpacked extension](https://developer.chrome.com/docs/extensions/mv3/getstarted/development-basics/#load-unpacked).
+
+
+
+# Privacy
+
+Better Classroom is a free and open-source project. It does **not** collect or transmit any personal information.  
+- Only **Google Classroom class IDs** and folder data are stored, and this happens **locally in your browser extension storage**.  
+- No data is ever sent to external servers or third parties.  
+- Users remain in full control of their data at all times.  
+
+📄 [Read the full Privacy Policy](https://sarwinr.github.io/better-classroom/privacy)
