@@ -1,5 +1,5 @@
 // CLASS NAMES AND IDs
-navigationBarClassName = "fB7J9c kWv2Xb QRiHXd"; // the '+' button in the navigation bar located on the top right side of the screen
+navigationBarClassName = "Mtd4hb gmNu1d"; // the '+' button in the navigation bar located on the top right side of the screen
 folderListClassName = "JwPp0e";
 contentWindowClassName = "kFwPee";
 inContentWindowNavigationBarClassName = "xgkURe mhCMAe";
