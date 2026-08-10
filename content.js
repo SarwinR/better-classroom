@@ -41,13 +41,44 @@ userDefinedClassName = {};
 var unable2FindClassMessage =
   'Unable to load classes. Please go to <a href="https://classroom.google.com/">Google Classroom Homepage</a> and refresh the page.';
 
-folderList = document.getElementsByClassName(folderListClassName)[0];
-contentWindow = document.getElementsByClassName(contentWindowClassName)[0];
-navigationBar = document.getElementsByClassName(navigationBarClassName)[0];
+function waitForElementByClass(className) {
+  return new Promise(resolve => {
+    const exists = document.getElementsByClassName(className)[0];
+    if (exists) {
+      return resolve(exists);
+    }
 
-loadFolders();
-loadLastSelectedFolder();
-setup();
+    const observer = new MutationObserver((mutations, obs) => {
+      const element = document.getElementsByClassName(className)[0];
+      if (element) {
+        obs.disconnect();
+        resolve(element);
+      }
+    });
+
+    // Observing the whole body... This could (probably easily) be made better
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  });
+}
+
+async function initExtension() {
+
+  // When the observer realizes google loaded the classes, folderListClassName gets set 
+  folderList = await waitForElementByClass(folderListClassName);
+  
+  contentWindow = await waitForElementByClass(contentWindowClassName);
+  navigationBar = await waitForElementByClass(navigationBarClassName);
+
+  loadFolders();
+  loadLastSelectedFolder();
+  setup();
+}
+
+// Initialize function runs asynchronously, otherwise the whole thing won't load since google classroom takes time to load the elements
+initExtension();
 
 function loadLastSelectedFolder() {
   chrome.runtime.sendMessage(
@@ -679,7 +710,7 @@ function setup() {
   if (!folderList) {
     // Google Classroom is not is not on homepage/was not loaded form homepage
     // TODO add observer to detect when Google Classroom homepage is loaded
-    // console.log("Google Classroom is not on homepage");
+    console.log("Google Classroom is not on homepage");
 
     unable2FindClass = true;
     loadingClasses = false;
