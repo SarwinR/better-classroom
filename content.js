@@ -710,7 +710,7 @@ function setup() {
   if (!folderList) {
     // Google Classroom is not is not on homepage/was not loaded form homepage
     // TODO add observer to detect when Google Classroom homepage is loaded
-    console.log("Google Classroom is not on homepage");
+    //console.log("Google Classroom is not on homepage");
 
     unable2FindClass = true;
     loadingClasses = false;
