@@ -1,0 +1,151 @@
+name: Release browser extensions
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version increment
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: read
+
+concurrency:
+  group: extension-store-release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ steps.version.outputs.value }}
+      artifact: ${{ steps.version.outputs.artifact }}
+    steps:
+      - name: Require main branch
+        run: test "$GITHUB_REF" = "refs/heads/main"
+
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Ensure main has not moved
+        run: |
+          git fetch origin main
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
+
+      - name: Bump manifest version
+        id: version
+        env:
+          BUMP: ${{ inputs.bump }}
+        run: |
+          VERSION="$(node scripts/release-tools.mjs bump "$BUMP")"
+          echo "value=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "artifact=better-classroom-v$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Validate and package extension
+        env:
+          VERSION: ${{ steps.version.outputs.value }}
+        run: |
+          mkdir dist
+          node scripts/release-tools.mjs validate
+          node scripts/release-tools.mjs package "dist/better-classroom-v$VERSION.zip"
+          unzip -t "dist/better-classroom-v$VERSION.zip"
+          test "$(unzip -Z1 "dist/better-classroom-v$VERSION.zip" | grep -c '^manifest.json$')" = "1"
+
+      - name: Preserve release package
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.version.outputs.artifact }}
+          path: dist/*.zip
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Commit and tag version
+        env:
+          VERSION: ${{ steps.version.outputs.value }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add manifest.json
+          git commit -m "Release v$VERSION"
+          git tag -a "v$VERSION" -m "Release v$VERSION"
+          git push origin HEAD:main "v$VERSION"
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.value }}
+        run: gh release create "v$VERSION" "dist/better-classroom-v$VERSION.zip" --generate-notes --title "v$VERSION"
+
+  chrome:
+    name: Submit Chrome Web Store
+    needs: prepare
+    runs-on: ubuntu-latest
+    environment: extension-stores
+    steps:
+      - name: Check out release tooling
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Download release package
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.prepare.outputs.artifact }}
+          path: dist
+
+      - name: Upload and submit Chrome extension
+        env:
+          CHROME_CLIENT_ID: ${{ vars.CHROME_CLIENT_ID }}
+          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          CHROME_PUBLISHER_ID: ${{ vars.CHROME_PUBLISHER_ID }}
+          CHROME_EXTENSION_ID: ${{ vars.CHROME_EXTENSION_ID }}
+          EXTENSION_ZIP: dist/better-classroom-v${{ needs.prepare.outputs.version }}.zip
+        run: node scripts/publish-chrome.mjs
+
+  edge:
+    name: Submit Microsoft Edge Add-ons
+    needs: prepare
+    runs-on: ubuntu-latest
+    environment: extension-stores
+    steps:
+      - name: Check out release tooling
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Download release package
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.prepare.outputs.artifact }}
+          path: dist
+
+      - name: Upload and submit Edge extension
+        env:
+          EDGE_CLIENT_ID: ${{ vars.EDGE_CLIENT_ID }}
+          EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
+          EDGE_PRODUCT_ID: ${{ vars.EDGE_PRODUCT_ID }}
+          EXTENSION_ZIP: dist/better-classroom-v${{ needs.prepare.outputs.version }}.zip
+          RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
+        run: node scripts/publish-edge.mjs
