@@ -41,13 +41,46 @@ userDefinedClassName = {};
 var unable2FindClassMessage =
   'Unable to load classes. Please go to <a href="https://classroom.google.com/">Google Classroom Homepage</a> and refresh the page.';
 
-folderList = document.getElementsByClassName(folderListClassName)[0];
-contentWindow = document.getElementsByClassName(contentWindowClassName)[0];
-navigationBar = document.getElementsByClassName(navigationBarClassName)[0];
+function waitForElementByClass(className, timeout = 10000) {
+  return new Promise((resolve) => {
+    const existingElement = document.getElementsByClassName(className)[0];
+    if (existingElement) {
+      resolve(existingElement);
+      return;
+    }
 
-loadFolders();
-loadLastSelectedFolder();
-setup();
+    const observer = new MutationObserver(() => {
+      const element = document.getElementsByClassName(className)[0];
+      if (element) {
+        clearTimeout(timeoutId);
+        observer.disconnect();
+        resolve(element);
+      }
+    });
+
+    const timeoutId = setTimeout(() => {
+      observer.disconnect();
+      resolve(null);
+    }, timeout);
+
+    observer.observe(document.body, { childList: true, subtree: true });
+  });
+}
+
+async function initExtension() {
+  [folderList, navigationBar] = await Promise.all([
+    waitForElementByClass(folderListClassName),
+    waitForElementByClass(navigationBarClassName),
+  ]);
+
+  if (navigationBar == null) return;
+
+  loadFolders();
+  loadLastSelectedFolder();
+  setup();
+}
+
+initExtension();
 
 function loadLastSelectedFolder() {
   chrome.runtime.sendMessage(
@@ -152,6 +185,8 @@ function setupFolderModalClassList(
   isEditable = true
 ) {
   classSelectionList = document.getElementById(elementId);
+  if (classSelectionList == null) return;
+
   classSelectionList.innerHTML = "";
 
   if (loadingClasses) {
@@ -651,29 +686,26 @@ function setup() {
       });
     });
 
-  // create an observer instance
+  function finishLoadingClasses() {
+    allClasses = document.getElementsByClassName(classClassName);
+
+    renderFolders();
+    changeClassesName();
+    loadingClasses = false;
+    setupFolderModalClassList("folder-creation-modal-class-select");
+    setupFolderModalClassList(
+      "folder-setting-modal-class-select",
+      folderId2ClassIds(selectedFolder),
+      isFolderEditable(selectedFolder)
+    );
+    setupFolderIcon();
+  }
+
+  // Create an observer for class cards that are added after initialization.
   var config = { attributes: true, childList: true, characterData: true };
-  var fileListObserver = new MutationObserver(function (mutations) {
+  var fileListObserver = new MutationObserver(function () {
     fileListObserver.disconnect();
-
-    setTimeout(() => {
-      allClasses = document.getElementsByClassName(classClassName);
-
-      console.log(allClasses);
-      console.log(allClasses.length);
-
-      renderFolders();
-      changeClassesName();
-      loadingClasses = false;
-      setupFolderModalClassList("folder-creation-modal-class-select");
-      setupFolderModalClassList(
-        "folder-setting-modal-class-select",
-        folderId2ClassIds(selectedFolder),
-        isFolderEditable(selectedFolder)
-      );
-
-      setupFolderIcon();
-    }, 0);
+    setTimeout(finishLoadingClasses, 0);
   });
 
   if (!folderList) {
@@ -684,7 +716,11 @@ function setup() {
     unable2FindClass = true;
     loadingClasses = false;
   } else {
-    // console.log("Google Classroom is on homepage");
-    fileListObserver.observe(folderList, config);
+    // Class cards may have rendered before the extension started observing.
+    if (document.getElementsByClassName(classClassName).length > 0) {
+      finishLoadingClasses();
+    } else {
+      fileListObserver.observe(folderList, config);
+    }
   }
 }
