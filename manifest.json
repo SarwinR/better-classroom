@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Better Classroom",
   "description": "Better Classroom is a Google Chrome extension that lets users create folders to organize their classes in Google Classroom.",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "icons": {
     "16": "assets/icons/extension_icons/16.png",
     "48": "assets/icons/extension_icons/48.png",
@@ -25,18 +25,28 @@
         "/html/class_setting_button.html",
         "/html/class_setting_modal.html"
       ],
-      "matches": ["<all_urls>"]
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ],
   "background": {
     "service_worker": "main.js"
   },
-  "permissions": ["storage"],
+  "permissions": [
+    "storage"
+  ],
   "content_scripts": [
     {
-      "matches": ["https://classroom.google.com/*"],
-      "js": ["content.js"],
-      "css": ["css/style.css"],
+      "matches": [
+        "https://classroom.google.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "css/style.css"
+      ],
       "run_at": "document_end"
     }
   ]
