@@ -1,0 +1,115 @@
+name: Publish existing release to stores
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing GitHub release tag (for example v1.1.9)
+        required: true
+        type: string
+      stores:
+        description: Stores to submit to
+        required: true
+        default: both
+        type: choice
+        options: [both, chrome, edge]
+  workflow_call:
+    inputs:
+      release_tag:
+        required: true
+        type: string
+      stores:
+        required: true
+        type: string
+    secrets:
+      CHROME_CLIENT_ID:
+        required: false
+      CHROME_CLIENT_SECRET:
+        required: false
+      CHROME_REFRESH_TOKEN:
+        required: false
+      EDGE_CLIENT_ID:
+        required: false
+      EDGE_API_KEY:
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.targets.outputs.matrix }}
+    steps:
+      - name: Validate main branch and inputs
+        id: targets
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          STORES: ${{ inputs.stores }}
+        run: |
+          test "$GITHUB_REF" = "refs/heads/main"
+          node --input-type=module <<'JS'
+          import { appendFileSync } from 'node:fs';
+          if (!/^v\d+\.\d+\.\d+$/.test(process.env.RELEASE_TAG)) throw new Error('Invalid release tag');
+          if (!['both', 'chrome', 'edge'].includes(process.env.STORES)) throw new Error('Invalid store selection');
+          const store = process.env.STORES === 'both' ? ['chrome', 'edge'] : [process.env.STORES];
+          appendFileSync(process.env.GITHUB_OUTPUT, `matrix=${JSON.stringify({ store })}\n`);
+          JS
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Download the exact published release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          mkdir dist
+          gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json tagName,isDraft,isPrerelease,assets > dist/release.json
+          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --pattern "better-classroom-$RELEASE_TAG.zip" --dir dist
+          node scripts/verify-store-release.mjs "$RELEASE_TAG" "dist/better-classroom-$RELEASE_TAG.zip" dist/release.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verified-store-package-${{ inputs.release_tag }}
+          path: dist/*.zip
+          retention-days: 7
+          if-no-files-found: error
+
+  publish:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    concurrency:
+      group: extension-publish-${{ matrix.store }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v4
+        with:
+          name: verified-store-package-${{ inputs.release_tag }}
+          path: dist
+      - name: Upload and submit for store review
+        env:
+          STORE: ${{ matrix.store }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          CHROME_PUBLISHER_ID: ${{ matrix.store == 'chrome' && vars.CHROME_PUBLISHER_ID || '' }}
+          CHROME_EXTENSION_ID: ${{ matrix.store == 'chrome' && vars.CHROME_EXTENSION_ID || '' }}
+          CHROME_CLIENT_ID: ${{ matrix.store == 'chrome' && secrets.CHROME_CLIENT_ID || '' }}
+          CHROME_CLIENT_SECRET: ${{ matrix.store == 'chrome' && secrets.CHROME_CLIENT_SECRET || '' }}
+          CHROME_REFRESH_TOKEN: ${{ matrix.store == 'chrome' && secrets.CHROME_REFRESH_TOKEN || '' }}
+          EDGE_PRODUCT_ID: ${{ matrix.store == 'edge' && vars.EDGE_PRODUCT_ID || '' }}
+          EDGE_CLIENT_ID: ${{ matrix.store == 'edge' && secrets.EDGE_CLIENT_ID || '' }}
+          EDGE_API_KEY: ${{ matrix.store == 'edge' && secrets.EDGE_API_KEY || '' }}
+        run: node scripts/publish-store.mjs "$STORE" "dist/better-classroom-$RELEASE_TAG.zip" "${RELEASE_TAG#v}"

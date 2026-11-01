@@ -29,3 +29,7 @@ Better Classroom is a free and open-source project. It does **not** collect or t
 - Users remain in full control of their data at all times.  
 
 📄 [Read the full Privacy Policy](https://sarwinr.github.io/better-classroom/privacy)
+
+## Maintainer releases
+
+The release workflow builds the extension ZIP and can submit it to Chrome and Edge automatically. See the [store publishing setup and retry guide](docs/store-publishing.md).
