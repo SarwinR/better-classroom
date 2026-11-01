@@ -1,0 +1,11 @@
+{
+  "name": "better-classroom",
+  "private": true,
+  "scripts": {
+    "test": "node --test",
+    "validate": "node scripts/release-tools.mjs validate"
+  },
+  "devDependencies": {
+    "jsdom": "^26.1.0"
+  }
+}

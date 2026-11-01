@@ -1,18 +1,16 @@
-// CLASS NAMES AND IDs
-navigationBarClassName = "Mtd4hb gmNu1d"; // the '+' button in the navigation bar located on the top right side of the screen
-folderListClassName = "JwPp0e";
-contentWindowClassName = "kFwPee";
-inContentWindowNavigationBarClassName = "xgkURe mhCMAe";
-
-classClassName = "gHz6xd riU7le rZXyy";
-classTitleClassName = "ScpeUc Vu2fZd XwD7Ke";
+// Legacy title selector is a fallback for older Classroom card layouts.
+const classTitleClassName = "ScpeUc Vu2fZd XwD7Ke";
 
 var unable2FindClass = false;
 var loadingClasses = true;
 classesDictionary = {}; // classID: className
 folderSelectedClasses = [];
-// an array of all elements with class classClassName
-allClasses = null;
+// Current home-page cards, refreshed after Classroom renders.
+allClasses = [];
+const originalClassTitles = new WeakMap();
+let dropdownElement = null;
+let refreshTimer = null;
+let pageObserver;
 
 folderSettingModal = null;
 folderCreationModal = null;
@@ -41,56 +39,82 @@ userDefinedClassName = {};
 var unable2FindClassMessage =
   'Unable to load classes. Please go to <a href="https://classroom.google.com/">Google Classroom Homepage</a> and refresh the page.';
 
-function waitForElementByClass(className, timeout = 10000) {
-  return new Promise((resolve) => {
-    const existingElement = document.getElementsByClassName(className)[0];
-    if (existingElement) {
-      resolve(existingElement);
-      return;
+// Classroom is a single-page app: cards and navigation can arrive or be replaced
+// long after document_end. Keep observing instead of giving up after one update.
+async function initExtension() {
+  await Promise.all([loadFolders(), loadLastSelectedFolder(), loadClasses()]);
+  if (!(selectedFolder in folders) && !(selectedFolder in topStaticFolders)) {
+    selectedFolder = "__All Classes__";
+  }
+  await setup();
+  pageObserver = new MutationObserver(scheduleRefresh);
+  refreshExtension();
+  window.addEventListener("popstate", scheduleRefresh);
+}
+
+function scheduleRefresh() {
+  if (refreshTimer !== null) return;
+  refreshTimer = setTimeout(() => {
+    refreshTimer = null;
+    refreshExtension();
+  }, 50);
+}
+
+function isClassroomHome() {
+  return /^\/(?:u\/\d+\/)?(?:h(?:\/|$)|$)/.test(location.pathname);
+}
+
+function refreshExtension() {
+  // Our own DOM changes must not trigger another refresh.
+  pageObserver.disconnect();
+  try {
+    const navigationBar = document.querySelector("#kO001e .Mtd4hb") ||
+      document.getElementById("kO001e");
+    if (navigationBar && dropdownElement && !dropdownElement.isConnected) {
+      // Preserve Google's existing nodes, controllers and event listeners.
+      navigationBar.prepend(dropdownElement);
+      renderFolderDropdown();
     }
-
-    const observer = new MutationObserver(() => {
-      const element = document.getElementsByClassName(className)[0];
-      if (element) {
-        clearTimeout(timeoutId);
-        observer.disconnect();
-        resolve(element);
+    const atHome = isClassroomHome();
+    if (dropdownElement) dropdownElement.hidden = !atHome;
+    allClasses = atHome ? Array.from(document.querySelectorAll("li[data-course-id]")) : [];
+    loadingClasses = false;
+    unable2FindClass = false;
+    const previousClasses = JSON.stringify(classesDictionary);
+    renderFolders();
+    changeClassesName();
+    setupFolderIcon();
+    if (previousClasses !== JSON.stringify(classesDictionary)) {
+      if (folderCreationModal?.style.display === "flex") {
+        setupFolderModalClassList("folder-creation-modal-class-select", folderSelectedClasses);
+      } else if (folderSettingModal?.style.display === "flex") {
+        setupFolderModalClassList(
+          "folder-setting-modal-class-select",
+          isFolderEditable(selectedFolder) ? folderSelectedClasses : folderId2ClassIds(selectedFolder),
+          isFolderEditable(selectedFolder)
+        );
       }
+    }
+  } finally {
+    pageObserver.observe(document.body, {
+      childList: true, subtree: true, characterData: true,
+      attributes: true, attributeFilter: ["data-course-id"],
     });
+  }
+}
 
-    const timeoutId = setTimeout(() => {
-      observer.disconnect();
-      resolve(null);
-    }, timeout);
-
-    observer.observe(document.body, { childList: true, subtree: true });
+function readStoredData(action, fallback) {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage({ action }, (response) => {
+      if (chrome.runtime.lastError || !response) resolve(fallback);
+      else resolve(response);
+    });
   });
 }
 
-async function initExtension() {
-  [folderList, navigationBar] = await Promise.all([
-    waitForElementByClass(folderListClassName),
-    waitForElementByClass(navigationBarClassName),
-  ]);
-
-  if (navigationBar == null) return;
-
-  loadFolders();
-  loadLastSelectedFolder();
-  setup();
-}
-
-initExtension();
-
-function loadLastSelectedFolder() {
-  chrome.runtime.sendMessage(
-    { action: "getLastSelectedFolder" },
-    function (response) {
-      selectedFolder = response.lastSelectedFolder;
-      renderFolders();
-      renderFolderDropdown();
-    }
-  );
+async function loadLastSelectedFolder() {
+  const response = await readStoredData("getLastSelectedFolder", {});
+  selectedFolder = response.lastSelectedFolder || "__All Classes__";
 }
 
 function saveLastSelectedFolder() {
@@ -112,11 +136,9 @@ function saveClasses() {
   );
 }
 
-function loadClasses() {
-  chrome.runtime.sendMessage({ action: "getClassData" }, function (response) {
-    userDefinedClassName = response.classData;
-    changeClassesName();
-  });
+async function loadClasses() {
+  const response = await readStoredData("getClassData", {});
+  userDefinedClassName = response.classData || {};
 }
 
 function saveFolders() {
@@ -135,35 +157,24 @@ function saveFolders() {
   );
 }
 
-function loadFolders() {
-  chrome.runtime.sendMessage({ action: "getFolderData" }, function (response) {
-    folders = response.folderData.folders;
-    folderActiveClasses = response.folderData.folderActiveClasses;
-    renderFolderDropdown();
-  });
+async function loadFolders() {
+  const response = await readStoredData("getFolderData", {});
+  folders = response.folderData?.folders || {};
+  folderActiveClasses = response.folderData?.folderActiveClasses || {};
 }
 
 function renderFolderDropdown() {
-  dropdown = document.getElementById("folder-dropdown");
-  if (dropdown == null) return;
-
-  dropdown.innerHTML = "";
-
-  Object.keys(topStaticFolders).forEach((k) => {
-    dropdown.innerHTML += `<option class="folder-dropdown-option" value="${k}">${topStaticFolders[k]}</option>`;
-  });
-
-  Object.keys(folders).forEach((k) => {
-    dropdown.innerHTML += `<option class="folder-dropdown-option" value="${k}">${folders[k]}</option>`;
-  });
-
-  Object.keys(bottomStaticFolders).forEach((k) => {
-    if (k == "__Separator__")
-      dropdown.innerHTML += `<option class="folder-dropdown-option" value="${k}" disabled>${bottomStaticFolders[k]}</option>`;
-    else
-      dropdown.innerHTML += `<option class="folder-dropdown-option" value="${k}">${bottomStaticFolders[k]}</option>`;
-  });
-
+  const dropdown = document.getElementById("folder-dropdown");
+  if (!dropdown) return;
+  dropdown.replaceChildren();
+  for (const [id, name] of Object.entries({ ...topStaticFolders, ...folders, ...bottomStaticFolders })) {
+    const option = document.createElement("option");
+    option.className = "folder-dropdown-option";
+    option.value = id;
+    option.textContent = name;
+    option.disabled = id === "__Separator__";
+    dropdown.appendChild(option);
+  }
   dropdown.value = selectedFolder;
 }
 
@@ -171,7 +182,7 @@ function folderId2ClassIds(folderId) {
   if (folderId == "__All Classes__") {
     return Object.keys(classesDictionary);
   } else {
-    return folderActiveClasses[folderId];
+    return folderActiveClasses[folderId] || [];
   }
 }
 
@@ -184,7 +195,7 @@ function setupFolderModalClassList(
   activeClasses = [],
   isEditable = true
 ) {
-  classSelectionList = document.getElementById(elementId);
+  const classSelectionList = document.getElementById(elementId);
   if (classSelectionList == null) return;
 
   classSelectionList.innerHTML = "";
@@ -205,7 +216,7 @@ function setupFolderModalClassList(
 
     return;
   }
-  if (allClasses == null) {
+  if (allClasses.length === 0) {
     classSelectionList.innerHTML = `<option class="class-option" disabled>No Classes Found</option>`;
     return;
   }
@@ -216,14 +227,16 @@ function setupFolderModalClassList(
       _className = userDefinedClassName[k] + " (" + classesDictionary[k] + ")";
     else _className = classesDictionary[k];
 
-    if (isEditable)
-      classSelectionList.innerHTML += `<option class="class-option" value="${k}">${_className}</option>`;
-    else
-      classSelectionList.innerHTML += `<option class="class-option" value="${k}" disabled>${_className}</option>`;
+    const option = document.createElement("option");
+    option.className = "class-option";
+    option.value = k;
+    option.textContent = _className;
+    option.disabled = !isEditable;
+    classSelectionList.appendChild(option);
   });
 
   // activate all classes in activeClasses
-  folderSelectedClasses = activeClasses;
+  folderSelectedClasses = [...activeClasses];
   if (folderSelectedClasses != null) {
     for (let i = 0; i < classSelectionList.options.length; i++) {
       if (folderSelectedClasses.includes(classSelectionList.options[i].value)) {
@@ -237,7 +250,8 @@ function setupFolderModalClassList(
 
   classSelectionList.setAttribute("listener-added", true);
   classSelectionList.addEventListener("click", () => {
-    _classSelectionListValue = classSelectionList.value;
+    const _classSelectionListValue = classSelectionList.value;
+    if (!_classSelectionListValue || classSelectionList.selectedOptions[0]?.disabled) return;
     classSelectionList.value = "";
 
     if (folderSelectedClasses.includes(_classSelectionListValue)) {
@@ -259,92 +273,61 @@ function setupFolderModalClassList(
 }
 
 function setupFolderIcon() {
-  if (allClasses == null) return;
-
-  fetch(chrome.runtime.getURL("html/class_setting_button.html"))
-    .then((response) => response.text())
-    .then((data) => {
-      if (document.getElementById("class-setting-button") != null) return;
-
-      for (let i = 0; i < allClasses.length; i++) {
-        folderSettingButton = document.createElement("div");
-        folderSettingButton.innerHTML = data;
-        folderSettingButton.setAttribute("id", "class-setting-button");
-
-        folderSettingButton.addEventListener("click", () => {
-          toggleClassSettingModal(true, allClasses[i].dataset["courseId"]);
-          editingClassId = allClasses[i].dataset["courseId"];
-        });
-
-        appendedFolderSettingButton = allClasses[i]
-          .querySelector(".SZ0kZe") // class = SZ0kZe is the div that contains the 2 icons
-          .appendChild(folderSettingButton);
-
-        folderSettingButtonObserver = new MutationObserver((mutations) => {
-          mutations.forEach((mutation) => {
-            if (
-              mutation.type === "childList" &&
-              mutation.removedNodes.length > 0
-            ) {
-              const removedNodes = Array.from(mutation.removedNodes);
-              if (removedNodes.includes(folderSettingButton)) {
-                folderSettingButtonObserver.disconnect();
-                setupFolderIcon();
-              }
-            }
-          });
-        });
-
-        folderSettingButtonObserver.observe(
-          appendedFolderSettingButton.parentNode,
-          {
-            childList: true,
-          }
-        );
-      }
-
-      loadClasses();
+  for (const card of allClasses) {
+    if (card.querySelector(".bc-class-setting-button")) continue;
+    const classID = card.dataset.courseId;
+    if (!classesDictionary[classID]) continue;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "bc-class-setting-button";
+    button.textContent = "✎";
+    button.setAttribute("aria-label", `Better Classroom settings for ${classesDictionary[classID]}`);
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      editingClassId = classID;
+      toggleClassSettingModal(true, classID);
     });
+    // Use the action row when available; a card still works if its CSS changes.
+    (card.querySelector(".SZ0kZe") || card).appendChild(button);
+  }
+}
+
+function getClassTitle(card) {
+  return card.querySelector("h2 a[href] > div") ||
+    card.getElementsByClassName(classTitleClassName)[0];
 }
 
 function renderFolders() {
-  if (allClasses == null) return; // ! set message to no classes found
-
   classesDictionary = {};
-
-  for (let i = 0; i < allClasses.length; i++) {
-    _classID = allClasses[i].dataset["courseId"];
-    _className =
-      allClasses[i].getElementsByClassName(classTitleClassName)[0].innerText;
-
-    classesDictionary[_classID] = _className;
-
-    _folderActiveClasses = folderActiveClasses[selectedFolder] || [];
-
-    // if class is in active folder or no folder is selected, show class
-    if (
-      _folderActiveClasses.includes(allClasses[i].dataset["courseId"]) ||
-      selectedFolder == null ||
-      selectedFolder == "__All Classes__"
-    ) {
-      allClasses[i].style.display = "flex";
-    } else {
-      allClasses[i].style.display = "none";
+  for (const card of allClasses) {
+    const title = getClassTitle(card);
+    const classID = card.dataset.courseId;
+    if (!title || !classID) continue; // A partially rendered card is retried later.
+    const currentTitle = title.textContent;
+    if (!currentTitle.trim()) continue;
+    let state = originalClassTitles.get(title);
+    if (!state || state.lastRendered !== currentTitle) {
+      state = { original: currentTitle, lastRendered: currentTitle };
+      originalClassTitles.set(title, state);
+    }
+    classesDictionary[classID] = state.original;
+    const visible = selectedFolder === "__All Classes__" ||
+      (folderActiveClasses[selectedFolder] || []).includes(classID);
+    if (card.style.display !== (visible ? "" : "none")) {
+      card.style.display = visible ? "" : "none";
     }
   }
 }
 
-function submitNewClassName() {}
-
 function changeClassesName() {
-  for (let i = 0; i < allClasses.length; i++) {
-    if (userDefinedClassName[allClasses[i].dataset["courseId"]] != null) {
-      allClasses[i].getElementsByClassName(classTitleClassName)[0].innerText =
-        userDefinedClassName[allClasses[i].dataset["courseId"]];
-    } else {
-      allClasses[i].getElementsByClassName(classTitleClassName)[0].innerText =
-        classesDictionary[allClasses[i].dataset["courseId"]];
-    }
+  for (const card of allClasses) {
+    const title = getClassTitle(card);
+    const original = classesDictionary[card.dataset.courseId];
+    if (!title || !original) continue;
+    const name = userDefinedClassName[card.dataset.courseId] || original;
+    if (title.textContent !== name) title.textContent = name;
+    originalClassTitles.get(title).lastRendered = name;
   }
 }
 
@@ -544,183 +527,147 @@ function deleteFolder(id) {
   renderFolders();
 }
 
-function setup() {
-  // setting up folder creation modal
-  fetch(chrome.runtime.getURL("html/folder_creation_modal.html"))
-    .then((response) => response.text())
-    .then((data) => {
-      folderCreationModal = document.createElement("div");
-      folderCreationModal.innerHTML = data;
-      document.body.appendChild(folderCreationModal);
+async function setup() {
+  await Promise.all([
+    // setting up folder creation modal
+    fetch(chrome.runtime.getURL("html/folder_creation_modal.html"))
+      .then((response) => response.text())
+      .then((data) => {
+        folderCreationModal = document.createElement("div");
+        folderCreationModal.innerHTML = data;
+        document.body.appendChild(folderCreationModal);
 
-      folderCreationModal = document.getElementById("folder-creation-modal");
+        folderCreationModal = document.getElementById("folder-creation-modal");
 
-      toggleFolderCreationModal(false);
-
-      // setup close button
-      folderCreationCloseButton = document.getElementById(
-        "folder-creation-modal-modal-close"
-      );
-      folderCreationCloseButton.addEventListener("click", () => {
         toggleFolderCreationModal(false);
-      });
 
-      // setup submit button
-      folderCreationSubmitButton = document.getElementById(
-        "folder-creation-modal-modal-submit"
-      );
-      folderCreationSubmitButton.addEventListener("click", () => {
-        submitFolderCreationForm();
-      });
-    });
-
-  fetch(chrome.runtime.getURL("html/class_setting_modal.html"))
-    .then((response) => response.text())
-    .then((data) => {
-      classSettingModal = document.createElement("div");
-      classSettingModal.innerHTML = data;
-      document.body.appendChild(classSettingModal);
-
-      classSettingModal = document.getElementById("class-setting-modal");
-
-      toggleClassSettingModal(false);
-
-      // setup close button
-      folderCreationCloseButton = document.getElementById(
-        "class-setting-modal-modal-close"
-      );
-      folderCreationCloseButton.addEventListener("click", () => {
-        toggleClassSettingModal(false);
-      });
-
-      // setup submit button
-      folderCreationSubmitButton = document.getElementById(
-        "class-setting-modal-modal-submit"
-      );
-      folderCreationSubmitButton.addEventListener("click", () => {
-        saveClassChanges();
-        toggleClassSettingModal(false);
-      });
-    });
-
-  fetch(chrome.runtime.getURL("html/dropdown_list.html"))
-    .then((response) => response.text())
-    .then((data) => {
-      dropdown = document.createElement("div");
-      dropdown.innerHTML = data;
-
-      navigationBar.innerHTML = dropdown.innerHTML + navigationBar.innerHTML;
-
-      renderFolderDropdown();
-
-      folderDropdown = document.getElementById("folder-dropdown");
-
-      folderDropdown.addEventListener("click", () => {
-        if (folderDropdown.value == "__Add Folder__") {
-          folderDropdown.value = selectedFolder || "__All Classes__";
-          toggleFolderCreationModal(true);
-          return;
-        }
-
-        if (folderDropdown.value == "__Separator__") {
-          return;
-        }
-
-        if (folderDropdown.value != selectedFolder) {
-          selectedFolder = folderDropdown.value;
-          saveLastSelectedFolder();
-          renderFolders();
-        }
-      });
-
-      folderEditButton = document.getElementById("folder-edit-button");
-      folderEditButton.addEventListener("click", () => {
-        toggleFolderSettingModal(true);
-      });
-    });
-
-  // setting up folder setting modal
-  fetch(chrome.runtime.getURL("html/folder_setting_modal.html"))
-    .then((response) => response.text())
-    .then((data) => {
-      folderSettingModal = document.createElement("div");
-      folderSettingModal.innerHTML = data;
-      document.body.appendChild(folderSettingModal);
-
-      folderSettingModal = document.getElementById("folder-setting-modal");
-
-      toggleFolderSettingModal(false);
-
-      // setup close button
-      folderSettingCloseButton = document.getElementById(
-        "folder-setting-modal-modal-close"
-      );
-      folderSettingCloseButton.addEventListener("click", () => {
-        toggleFolderSettingModal(false);
-      });
-
-      // setup delete button
-      folderSettingDeleteButton = document.getElementById(
-        "folder-setting-modal-modal-delete"
-      );
-
-      folderSettingDeleteButton.addEventListener("click", () => {
-        deleteFolder(selectedFolder);
-      });
-
-      folderSettingsaveButton = document.getElementById(
-        "folder-setting-modal-modal-submit"
-      );
-      folderSettingsaveButton.addEventListener("click", () => {
-        nameInputField = document.getElementById(
-          "folder-setting-modal-folder-name"
+        // setup close button
+        folderCreationCloseButton = document.getElementById(
+          "folder-creation-modal-modal-close"
         );
-        if (validateFolderName(nameInputField.value, true)) {
-          saveFolderChanges(
-            selectedFolder,
-            nameInputField.value,
-            folderSelectedClasses
-          );
+        folderCreationCloseButton.addEventListener("click", () => {
+          toggleFolderCreationModal(false);
+        });
+
+        // setup submit button
+        folderCreationSubmitButton = document.getElementById(
+          "folder-creation-modal-modal-submit"
+        );
+        folderCreationSubmitButton.addEventListener("click", () => {
+          submitFolderCreationForm();
+        });
+      }),
+
+    fetch(chrome.runtime.getURL("html/class_setting_modal.html"))
+      .then((response) => response.text())
+      .then((data) => {
+        classSettingModal = document.createElement("div");
+        classSettingModal.innerHTML = data;
+        document.body.appendChild(classSettingModal);
+
+        classSettingModal = document.getElementById("class-setting-modal");
+
+        toggleClassSettingModal(false);
+
+        // setup close button
+        folderCreationCloseButton = document.getElementById(
+          "class-setting-modal-modal-close"
+        );
+        folderCreationCloseButton.addEventListener("click", () => {
+          toggleClassSettingModal(false);
+        });
+
+        // setup submit button
+        folderCreationSubmitButton = document.getElementById(
+          "class-setting-modal-modal-submit"
+        );
+        folderCreationSubmitButton.addEventListener("click", () => {
+          saveClassChanges();
+          toggleClassSettingModal(false);
+        });
+      }),
+
+    fetch(chrome.runtime.getURL("html/dropdown_list.html"))
+      .then((response) => response.text())
+      .then((data) => {
+        const dropdown = document.createElement("div");
+        dropdown.innerHTML = data;
+
+        dropdownElement = dropdown.firstElementChild;
+        // Attach listeners before the observer mounts this owned subtree.
+        const folderDropdown = dropdownElement.querySelector("#folder-dropdown");
+        const folderEditButton = dropdownElement.querySelector("#folder-edit-button");
+
+        folderDropdown.addEventListener("change", () => {
+          if (folderDropdown.value == "__Add Folder__") {
+            folderDropdown.value = selectedFolder || "__All Classes__";
+            toggleFolderCreationModal(true);
+            return;
+          }
+
+          if (folderDropdown.value == "__Separator__") {
+            return;
+          }
+
+          if (folderDropdown.value != selectedFolder) {
+            selectedFolder = folderDropdown.value;
+            saveLastSelectedFolder();
+            renderFolders();
+          }
+        });
+
+        folderEditButton.addEventListener("click", () => {
+          toggleFolderSettingModal(true);
+        });
+      }),
+
+    // setting up folder setting modal
+    fetch(chrome.runtime.getURL("html/folder_setting_modal.html"))
+      .then((response) => response.text())
+      .then((data) => {
+        folderSettingModal = document.createElement("div");
+        folderSettingModal.innerHTML = data;
+        document.body.appendChild(folderSettingModal);
+
+        folderSettingModal = document.getElementById("folder-setting-modal");
+
+        toggleFolderSettingModal(false);
+
+        // setup close button
+        folderSettingCloseButton = document.getElementById(
+          "folder-setting-modal-modal-close"
+        );
+        folderSettingCloseButton.addEventListener("click", () => {
           toggleFolderSettingModal(false);
-        }
-      });
-    });
+        });
 
-  function finishLoadingClasses() {
-    allClasses = document.getElementsByClassName(classClassName);
+        // setup delete button
+        folderSettingDeleteButton = document.getElementById(
+          "folder-setting-modal-modal-delete"
+        );
 
-    renderFolders();
-    changeClassesName();
-    loadingClasses = false;
-    setupFolderModalClassList("folder-creation-modal-class-select");
-    setupFolderModalClassList(
-      "folder-setting-modal-class-select",
-      folderId2ClassIds(selectedFolder),
-      isFolderEditable(selectedFolder)
-    );
-    setupFolderIcon();
-  }
+        folderSettingDeleteButton.addEventListener("click", () => {
+          deleteFolder(selectedFolder);
+        });
 
-  // Create an observer for class cards that are added after initialization.
-  var config = { attributes: true, childList: true, characterData: true };
-  var fileListObserver = new MutationObserver(function () {
-    fileListObserver.disconnect();
-    setTimeout(finishLoadingClasses, 0);
-  });
-
-  if (!folderList) {
-    // Google Classroom is not is not on homepage/was not loaded form homepage
-    // TODO add observer to detect when Google Classroom homepage is loaded
-    // console.log("Google Classroom is not on homepage");
-
-    unable2FindClass = true;
-    loadingClasses = false;
-  } else {
-    // Class cards may have rendered before the extension started observing.
-    if (document.getElementsByClassName(classClassName).length > 0) {
-      finishLoadingClasses();
-    } else {
-      fileListObserver.observe(folderList, config);
-    }
-  }
+        folderSettingsaveButton = document.getElementById(
+          "folder-setting-modal-modal-submit"
+        );
+        folderSettingsaveButton.addEventListener("click", () => {
+          nameInputField = document.getElementById(
+            "folder-setting-modal-folder-name"
+          );
+          if (validateFolderName(nameInputField.value, true)) {
+            saveFolderChanges(
+              selectedFolder,
+              nameInputField.value,
+              folderSelectedClasses
+            );
+            toggleFolderSettingModal(false);
+          }
+        });
+      }),
+  ]);
 }
+
+initExtension().catch((error) => console.error("Better Classroom initialization failed", error));

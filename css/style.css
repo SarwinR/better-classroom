@@ -411,3 +411,25 @@
 	width: 100%;
 	box-sizing: border-box;
 }
+
+/* Own controls must not depend on Google's generated icon classes. */
+.bc-class-setting-button {
+	border: none;
+	border-radius: 50%;
+	background: transparent;
+	color: #3c4043;
+	cursor: pointer;
+	font-size: 24px;
+	width: 40px;
+	height: 40px;
+	margin: 4px;
+}
+
+.bc-class-setting-button:hover,
+.bc-class-setting-button:focus-visible {
+	background: #f1f3f4;
+}
+
+#folder-dropdown-div[hidden] {
+	display: none;
+}
