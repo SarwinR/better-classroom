@@ -13,6 +13,13 @@ on:
           - minor
           - major
 
+      stores:
+        description: Automatically submit the release to stores
+        required: true
+        default: none
+        type: choice
+        options: [none, both, chrome, edge]
+
 permissions:
   contents: read
 
@@ -23,6 +30,8 @@ concurrency:
 jobs:
   release:
     runs-on: ubuntu-latest
+    outputs:
+      release_tag: v${{ steps.version.outputs.value }}
     permissions:
       contents: write
     steps:
@@ -38,6 +47,33 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+
+      - name: Check selected store configuration
+        env:
+          STORES: ${{ inputs.stores }}
+          CHROME_PUBLISHER_ID: ${{ vars.CHROME_PUBLISHER_ID }}
+          CHROME_EXTENSION_ID: ${{ vars.CHROME_EXTENSION_ID }}
+          CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          EDGE_PRODUCT_ID: ${{ vars.EDGE_PRODUCT_ID }}
+          EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+          EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
+        run: |
+          case "$STORES" in
+            none) ;;
+            chrome|edge) node scripts/publish-store.mjs "$STORES" --check-config ;;
+            both)
+              node scripts/publish-store.mjs chrome --check-config
+              node scripts/publish-store.mjs edge --check-config
+              ;;
+            *) exit 1 ;;
+          esac
+
+      - name: Run regression tests
+        run: |
+          npm ci --ignore-scripts
+          npm test
 
       - name: Ensure main has not moved
         run: |
@@ -86,3 +122,17 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.version.outputs.value }}
         run: gh release create "v$VERSION" "dist/better-classroom-v$VERSION.zip" --generate-notes --title "v$VERSION"
+
+  publish:
+    needs: release
+    if: inputs.stores != 'none'
+    uses: ./.github/workflows/publish-stores.yml
+    with:
+      release_tag: ${{ needs.release.outputs.release_tag }}
+      stores: ${{ inputs.stores }}
+    secrets:
+      CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+      CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+      CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+      EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+      EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
