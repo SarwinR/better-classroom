@@ -45,10 +45,11 @@ export async function publishStore(store, zip, version, {
     }
   }
   async function poll(read, done) {
-    for (let i = 0; i < attempts; i++) {
+    const deadline = Date.now() + 10 * 60 * 1000;
+    for (let i = 0; i < attempts && Date.now() < deadline; i++) {
       const result = await read();
       if (done(result)) return result;
-      if (i + 1 < attempts) await wait(10000);
+      if (i + 1 < attempts) await wait(Math.max(0, Math.min(10000, deadline - Date.now())));
     }
     throw new Error('Store processing timed out. Check the recorded operation in the dashboard before retrying.');
   }
